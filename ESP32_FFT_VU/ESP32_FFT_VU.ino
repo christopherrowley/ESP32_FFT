@@ -10,11 +10,10 @@
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define LED_PIN         5             // LED strip data
 #define BTN_PIN         4             // Connect a push button to this pin to change patterns
-#define LONG_PRESS_MS   200           // Number of ms to count as a long press
-#define COLOR_ORDER     GRB           // If colours look wrong, play with this
+#define COLOR_ORDER     RGB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
 #define MAX_MILLIAMPS   2000          // Careful with the amount of power here if running off USB port
-const int BRIGHTNESS_SETTINGS = 200;  // Configureable brightness. If power draw is an issue, lower value
+const int BRIGHTNESS_SETTINGS = 50;  // Configureable brightness. If power draw is an issue, lower value
 #define LED_VOLTS       5             // Usually 5 or 12
 #define NUM_BANDS       16            // To change this, you will need to change the bunch of if statements describing the mapping from bins to bands
 #define NOISE           500           // Used as a crude noise filter, values below this are ignored
@@ -38,6 +37,10 @@ arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
 // Button stuff
 int buttonPushCounter = 0;
 EasyButton modeBtn(BTN_PIN);
+
+// In setup:
+  modeBtn.begin();
+  modeBtn.onPressed(changeMode);
 
 // FastLED stuff
 CRGB leds[NUM_LEDS];
@@ -114,11 +117,15 @@ void loop() {
   FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
   FFT.Compute(FFT_FORWARD);
   FFT.ComplexToMagnitude();
+ 
 
   // Analyse FFT results
   for (int i = 2; i < (SAMPLES/2); i++){       // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.
     if (vReal[i] > NOISE) {                    // Add a crude noise filter
 
+    // Serial.println(vReal[i]); // debug mic
+    
+    
     //16 bands, 12kHz top band
       if (i<=2 )           bandValues[0]  += (int)vReal[i];
       if (i>2   && i<=3  ) bandValues[1]  += (int)vReal[i];

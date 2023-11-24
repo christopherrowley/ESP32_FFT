@@ -20,7 +20,10 @@ This is much simpler than the line in method, but you will be limited to the fre
 
 ## Installation and code usage
 1. Download this repository and open ESP32_FFT_VU.ino.
-2. You will need the FastLED Neomatrix and EasyButton libraries from the Arduino library manager. Youw will also need the arduinoFFT library. At the time of writing, the library manager version arduinoFFT has a bug which prevents `DCRemoval()` from working, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file.
+2. From the Arduino library manager, you will need:
+    - FastLED Neomatrix
+    - EasyButton libraries . 
+    - arduinoFFT library (At the time of writing, the library manager version arduinoFFT has a bug which prevents `DCRemoval()` from working, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file)
 3. Watch the video to see how to use it.
 4. To customsise it to your own matrix layout, read about Neomatrix layouts at [Adafruit](https://learn.adafruit.com/adafruit-neopixel-uberguide/neomatrix-library#layouts-2894555-5).
 
@@ -39,3 +42,7 @@ The matrix is controlled from a single button. The functions are:
 - Single press: Change pattern
 
 
+## Other notes:
+Make sure that the Serial Monitor is using 115200 Baud rate. Also, upload speed should be the same (find this option under "Tools")
+
+If you try to upload and it cannot find a connection, you may need to hold down the 'boot' button on the ESP32 until it starts writing.
