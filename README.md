@@ -20,29 +20,33 @@ This is much simpler than the line in method, but you will be limited to the fre
 
 ## Installation and code usage
 1. Download this repository and open ESP32_FFT_VU.ino.
-2. From the Arduino library manager, you will need:
+2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.
+    1. Go to `File->Preferences->Additional Board Manager URLs`
+    2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+    3. click "Ok" to close out of preferences. It should begin to add something.
+    4. Go to `Tools->Board->Board Manager`
+    5. A panel should pop up, and search "ESP32"
+    6. Download the version by Espressif Systems
+    7. Now to set the board, go to `Tools->Board->esp32->"ESP32 Dev Module"`
+3. From the Arduino library manager, you will need:
     - FastLED Neomatrix
     - EasyButton libraries . 
-    - arduinoFFT library (At the time of writing, the library manager version arduinoFFT has a bug which prevents `DCRemoval()` from working, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file)
-3. Watch the video to see how to use it.
-4. To customsise it to your own matrix layout, read about Neomatrix layouts at [Adafruit](https://learn.adafruit.com/adafruit-neopixel-uberguide/neomatrix-library#layouts-2894555-5).
+    - arduinoFFT library (Seems to work, but reports of `DCRemoval()` not working. If this is the case, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file [`Sketch->Include Library->Add .ZIP Library`])
+    
+    - To load the Arduino FFT (or other) library:
 
-To load the Arduino FFT (or other) library:
-
-    In the IDE menu, select Sketch, 
-        -> Include Library
-            -> Manage Libraries
-                -> then search for 'FFT' 
-                
+        - In the IDE menu, select `Sketch->Include Library-> Manage Libraries->search for 'FFT'` 
                 The correct version is :// https://github.com/kosme/arduinoFFT
+4. Watch the video to see how to use it.
+5. To customsise it to your own matrix layout, read about Neomatrix layouts at [Adafruit](https://learn.adafruit.com/adafruit-neopixel-uberguide/neomatrix-library#layouts-2894555-5).
 
+## Other notes:
+Make sure that the Serial Monitor is using 115200 Baud rate. Also, upload speed should be the same (find this option under "Tools")
+
+If you try to upload and it cannot find a connection, you may need to hold down the 'boot' button on the ESP32 until it starts writing.
 
 ## Controls
 The matrix is controlled from a single button. The functions are:
 - Single press: Change pattern
 
 
-## Other notes:
-Make sure that the Serial Monitor is using 115200 Baud rate. Also, upload speed should be the same (find this option under "Tools")
-
-If you try to upload and it cannot find a connection, you may need to hold down the 'boot' button on the ESP32 until it starts writing.
