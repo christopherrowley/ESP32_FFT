@@ -20,7 +20,7 @@ This is much simpler than the line in method, but you will be limited to the fre
 
 ## Installation and code usage
 1. Download this repository and open ESP32_FFT_VU.ino.
-2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.
+2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.W1_spectrumAnalyzer
     1. Go to `File->Preferences->Additional Board Manager URLs`
     2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
     3. click "Ok" to close out of preferences. It should begin to add something.
@@ -44,6 +44,12 @@ This is much simpler than the line in method, but you will be limited to the fre
 Make sure that the Serial Monitor is using 115200 Baud rate. Also, upload speed should be the same (find this option under "Tools")
 
 If you try to upload and it cannot find a connection, you may need to hold down the 'boot' button on the ESP32 until it starts writing.
+
+## Workshop Guide!
+Each workshop is contained within its own folder. There is a markdown file within the folder that contains the instructions for that workshop. You can render a markdown file in Visual Studio code by using (Ctrl+K then V).
+
+The workshops are meant to be done in the following order, as time permits:
+1. W1_spectrumAnalyzer.
 
 ## Controls
 The matrix is controlled from a single button. The functions are:

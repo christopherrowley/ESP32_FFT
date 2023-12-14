@@ -4,19 +4,22 @@
 #include <FastLED_NeoMatrix.h>
 #include <arduinoFFT.h>
 
+// User Configuration zone! //
+#define NOISE           600           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
+#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
+#define LED_PIN         5             // LED strip data
+// End User Configuration zone //
+
 
 #define SAMPLES         1024          // Must be a power of 2
 #define SAMPLING_FREQ   40000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
-#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
 #define AUDIO_IN_PIN    35            // Signal in on this pin
-#define LED_PIN         5             // LED strip data
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
 #define MAX_MILLIAMPS   2000          // Careful with the amount of power here if running off USB port
 const int BRIGHTNESS_SETTINGS =150;  // Configureable brightness. If power draw is an issue, lower value
 #define LED_VOLTS       5             // Usually 5 or 12
 #define NUM_BANDS       16            // To change this, you will need to change the bunch of if statements describing the mapping from bins to bands
-#define NOISE           600           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
 const uint8_t kMatrixWidth = 16;                          // Matrix width
 const uint8_t kMatrixHeight = 16;                         // Matrix height
 #define NUM_LEDS       (kMatrixWidth * kMatrixHeight)     // Total number of LEDs
@@ -83,7 +86,8 @@ void loop() {
   FFT.Compute(FFT_FORWARD);
   FFT.ComplexToMagnitude();
  
-   //Serial.println(vReal[5]); // debug mic noise
+    // debug mic noise
+   //Serial.println(vReal[5]); 
 
   // Analyse FFT results
   for (int i = 2; i < (SAMPLES/2); i++){       // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.
@@ -117,9 +121,8 @@ void loop() {
     // Scale the bars for the display
     int barHeight = bandValues[band] / AMPLITUDE;
 
-    // if (band == 3) {
-    //   Serial.println(barHeight); // debug mic
-    // }
+    // debug mic 
+    // if (band == 3) Serial.println(barHeight); 
 
     if (barHeight > TOP) barHeight = TOP;
 
