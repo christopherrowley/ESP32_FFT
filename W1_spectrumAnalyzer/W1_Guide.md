@@ -8,7 +8,7 @@ In this workshop, we hope to develop a conceptual understanding of how the Fouri
 In order to achieve this, we will also have to become familiar with breadboards, jumper cables, the ESP32 and the LED Matrix. 
 
 ## Hardware setup
-To begin, you should set your hardware up as illustrated in the README.md file in the main directry. 
+To begin, you should set your hardware up as illustrated in the README.md file in the main directory. 
 
 Before Plugging into the breadboard, view the following diagrams to know how the wiring works on a breadboard.
 ![Linked across a row](horizontal-rows.png)
@@ -21,7 +21,7 @@ The LED matrix has 3 sets of wires as seen in the picture below:
 
 ![LED wiring](LED_wires.png)
 
-Since we are working with a single matrix, we don't need to worrk about the 'increase voltage wire' or the '3PIN Male Connector'. You want to connect to the Data Input - Female Connector. This is easy to distinguish as it is the only one that you should be able to insert a jumper cable into. 
+Since we are working with a single matrix, we don't need to worry about the 'increase voltage wire' or the '3PIN Male Connector'. You want to connect to the Data Input - Female Connector. This is easy to distinguish as it is the only one that you should be able to insert a jumper cable into. 
 
 With this working knowledge, we can connect parts with jumper cables by plugging into the same row without crossing the gutter. The following connections need to be made:
 - Connect the data line from the LED matrix to D5 on the ESP32
