@@ -46,22 +46,23 @@ The hard part is done and now the fun begins! We have the hardware working, and 
 1. We can start by playing the `middle C` file. A single note (created synthetically of course) will consist of a sine wave at a specific frequency. As we play this note, we should see a single bar light up. 
 2. Ok, so a single bar could have been a fluke. To test this some more, lets play a `frequency sweep` file. This should have the sound going from a low frequency to a high frequency. If our theory works, then we should see a bar light up on one side, and move across the LED matrix as it moves to a higher pitch.
 3. Enough of the synthetic waves! What about real audio? What gives a guitar the sound of a guitar, despite playing the same musical note as a piano? To better visualize this, we may want to adjust the frequencies that the bars of our LED correspond to. While we can hear from ~20- 20,000 Hz, most of the instrument and vocal frequencies are from the 20-10,000 Hz range. The first 5 octaves are all below 1,000 Hz. To better see how we can pick up small differences in notes, copy the following into your code from lines ~98 to ~114, replacing the `if` statements that are there:
-```if (i<=1 )           bandValues[0]  += (int)vReal[i];
-      if (i>1   && i<=1  ) bandValues[1]  += (int)vReal[i];
-      if (i>1   && i<=1  ) bandValues[2]  += (int)vReal[i];
-      if (i>1   && i<=2  ) bandValues[3]  += (int)vReal[i];
-      if (i>2   && i<=2  ) bandValues[4]  += (int)vReal[i];
-      if (i>2   && i<=3  ) bandValues[5]  += (int)vReal[i];
-      if (i>3   && i<=5  ) bandValues[6]  += (int)vReal[i];
-      if (i>5   && i<=6  ) bandValues[7]  += (int)vReal[i];
-      if (i>6   && i<=9  ) bandValues[8]  += (int)vReal[i];
-      if (i>9   && i<=12  ) bandValues[9]  += (int)vReal[i];
-      if (i>12   && i<=17  ) bandValues[10]  += (int)vReal[i];
-      if (i>17   && i<=24  ) bandValues[11]  += (int)vReal[i];
-      if (i>24   && i<=34  ) bandValues[12]  += (int)vReal[i];
-      if (i>34   && i<=47  ) bandValues[13]  += (int)vReal[i];
-      if (i>47   && i<=66  ) bandValues[14]  += (int)vReal[i];
-      if (i>66             ) bandValues[15]  += (int)vReal[i];`
+```   if (i<=3 )           bandValues[0]  += (int)vReal[i];
+      if (i>3   && i<=4  ) bandValues[1]  += (int)vReal[i];
+      if (i>4   && i<=5  ) bandValues[2]  += (int)vReal[i];
+      if (i>5   && i<=6  ) bandValues[3]  += (int)vReal[i];
+      if (i>6   && i<=7  ) bandValues[4]  += (int)vReal[i];
+      if (i>7   && i<=9  ) bandValues[5]  += (int)vReal[i];
+      if (i>9   && i<=11  ) bandValues[6]  += (int)vReal[i];
+      if (i>11   && i<=14  ) bandValues[7]  += (int)vReal[i];
+      if (i>14   && i<=18  ) bandValues[8]  += (int)vReal[i];
+      if (i>18   && i<=22  ) bandValues[9]  += (int)vReal[i];
+      if (i>22   && i<=28  ) bandValues[10]  += (int)vReal[i];
+      if (i>28   && i<=35  ) bandValues[11]  += (int)vReal[i];
+      if (i>35   && i<=44  ) bandValues[12]  += (int)vReal[i];
+      if (i>44   && i<=55  ) bandValues[13]  += (int)vReal[i];
+      if (i>55   && i<=69  ) bandValues[14]  += (int)vReal[i];
+      if (i>69             ) bandValues[15]  += (int)vReal[i];
+
 ```
-3. Continued... This changes the bins to be sensitive to frequencies between 20 and 3,000 Hz (1st to into the 7th Octave). Before you upload this change, try talking into your microphone and see how the bars are clustered together. How does that change with the new frequency range of the bars? 
+3. Continued... This changes the bins to be sensitive to frequencies between 100 and 3,000 Hz (2nd to into the 7th Octave). Before you upload this change, try talking into your microphone and see how the bars are clustered together. How does that change with the new frequency range of the bars? 
 4. Now we want to do what we set out to do in 3. Lets play and compare a C note from a guitar and a piano. How do the bars look?
