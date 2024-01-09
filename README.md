@@ -20,7 +20,7 @@ This is much simpler than the line in method, but you will be limited to the fre
 
 ## Installation and code usage
 1. Download this repository and open ESP32_FFT_VU.ino.
-2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.W1_spectrumAnalyzer
+2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.
     1. Go to `File->Preferences->Additional Board Manager URLs`
     2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
     3. click "Ok" to close out of preferences. It should begin to add something.
