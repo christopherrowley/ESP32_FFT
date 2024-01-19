@@ -1,11 +1,49 @@
 # Workshop Guide!
 
-Welcome to the spectrum analyzer workshop! In this workshop, we build a spectrum analyzer, where the LED vertical bars correspond to the sound within a particular frequency band (ie 400-1000 Hz). The amount of squares lit up with each bar will correspond to the relative amount of sound in that frequency.
+Welcome to the music note analyzer workshop! In this workshop, we build aim to build a device that provides the information necessary to tune an instrument.
 
 ## Goals
-In this workshop, we hope to develop a conceptual understanding of how the Fourier Transform works. Primarily, we are looking to convince ourself that it is possible to take in any incoming sound signal, and break it down into its frequency components. 
+In this workshop, we hope to develop a conceptual understanding of how the frequencies of sound waves map to musical notes. Each instrument obtains its unique sound by producing sound waves at many frequencies. We will apply our knowledge of the Fourier Transform to uncover the dominant frequency in a sound wave, which ends up being the musical tone we perceive the sound to be at. 
 
-In order to achieve this, we will also have to become familiar with breadboards, jumper cables, the ESP32 and the LED Matrix. 
+From this, we will compare this frequency to a known mathematical model, to determine how this frequency aligns with the primary music notes (i.e. A, A#, B, etc). Primarily, we are looking to convince ourself that it is possible to take in any incoming sound signal, and break it down into its frequency components. 
+
+## Theory
+
+### Frequency and Music Notes
+We will use the "C" note as an example. If we create a sinusodal wave that oscillates as a specific frequency, we get two spikes as our result from the Fourier transform (FT).  
+
+![Linked across a row](../images/middleC.png)
+In this case, we created a 261.6 Hz wave, and get two peaks following the FT, at -261.6 Hz and +261.6 Hz. The negative values are a consequence of the mathematics, and aren't interpretable for sound. For this exercise, we will ignore them and turn our focus to values above 0. 
+
+This is great! We can determine the frequency content of an incoming sound wave, but how does this map to musical notes? 
+
+We know that the frequency of musical notes changes exponentially, with base 2. We also know that the notes repeat every octave, with 12 different notes within an octave. If we start at some musical note f<sup>0</sup>, we can determine the frequency of a musical note 'n' notes away using the following formula:
+
+<p align="center">f<sub>n</sub> = f<sub>0</sub>* 2<sup>(n/12)</sup> </p>
+
+The means that the frequency of each note varies by a factor of  2<sup>(1/12)</sup> or ~1.05946. If we know that note 'C' in Octave 0 has frequency 16.35 Hz, we can use this as f<sub>0</sub> to map to any other music note. For example, we calculate that the plotted 'Middle C' note is 98 musical note steps away from this base note. 
+
+### Music Instruments
+To obtain a better appreciation of what separates a 'C' chord in piano and guitar, we will look at the Fourier transform of each. For a guitar C major chord we have:
+
+![Linked across a row](../images/GuitarC.png)
+
+The input audio looks quite random, but from the FT of that signal, we can see discrete peaks. If we look into the values of these peaks we see that they align with different musical notes! We perceive this to be a 'C' note, because it is the largest peak in the FT. We won't go into the music theory of what other notes best pair to make a nice sounding 'chord'. 
+
+Let us compare the frequency spectrum from a guitar to one from a piano. The piano note is one octave lower to help us visualize differences. 
+
+![Linked across a row](../images/GuitarVsPiano.png)
+We have a primary difference of 1 octave in the C notes. But you can see that despite the piano being a lower note, it has more high frequency content that provides its characteristic sound. 
+
+Hopefully this helps illustrate the usefulness of the fourier transform. Now we have a quantitative metric to be able to compare two signals, that provides meaningful interpretation. 
+
+### Bringing It Together
+Hopefully from the above, we can see:
+- musical instruments differ in sound based on the contributions of additional frequencies
+- the musical note we 'hear' is the dominant frequency in the wave
+- we can use a mathematical formula to determine the frequency of any musical note
+
+We can make our 'note detector' by pre-computing the frequency values of all the notes in a frequency range of interest (~10-5000 Hz), and then compare our detected frequency, to find how close it is to the theoretical frequency.
 
 ## Hardware setup
 To begin, you should set your hardware up as illustrated in the README.md file in the main directory. 
