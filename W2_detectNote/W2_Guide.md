@@ -5,7 +5,7 @@ Welcome to the music note analyzer workshop! In this workshop, we build aim to b
 ## Goals
 In this workshop, we hope to develop a conceptual understanding of how the frequencies of sound waves map to musical notes. Each instrument obtains its unique sound by producing sound waves at many frequencies. We will apply our knowledge of the Fourier Transform to uncover the dominant frequency in a sound wave, which ends up being the musical tone we perceive the sound to be at. 
 
-From this, we will compare this frequency to a known mathematical model, to determine how this frequency aligns with the primary music notes (i.e. A, A#, B, etc). Primarily, we are looking to convince ourself that it is possible to take in any incoming sound signal, and break it down into its frequency components. 
+From this, we will compare this frequency to a known mathematical model, to determine how this frequency aligns with the primary music notes (i.e. A, A#, B, etc). Primarily, we are looking to convince ourselves that it is possible to take in any incoming sound signal, and break it down into its frequency components. 
 
 ## Theory
 
@@ -17,11 +17,19 @@ In this case, we created a 261.6 Hz wave, and get two peaks following the FT, at
 
 This is great! We can determine the frequency content of an incoming sound wave, but how does this map to musical notes? 
 
-We know that the frequency of musical notes changes exponentially, with base 2. We also know that the notes repeat every octave, with 12 different notes within an octave. If we start at some musical note f<sup>0</sup>, we can determine the frequency of a musical note 'n' notes away using the following formula:
+We know that the frequency of musical notes changes exponentially, with base 2. We also know that the notes repeat every octave, with 12 different notes within an octave. If we start at some musical note f<sub>0</sub>, we can determine the frequency of a musical note 'n' notes away using the following formula:
 
 <p align="center">f<sub>n</sub> = f<sub>0</sub>* 2<sup>(n/12)</sup> </p>
 
-The means that the frequency of each note varies by a factor of  2<sup>(1/12)</sup> or ~1.05946. If we know that note 'C' in Octave 0 has frequency 16.35 Hz, we can use this as f<sub>0</sub> to map to any other music note. For example, we calculate that the plotted 'Middle C' note is 98 musical note steps away from this base note. 
+The means that the frequency of each note varies by a factor of  2<sup>(1/12)</sup> or ~1.05946. If we know that note 'C' in Octave 0 has frequency 16.35 Hz, we can use this as f<sub>0</sub> to map to any other music note. For example, we calculate that the plotted 'Middle C' note is 49 musical note steps away from this base note. 
+
+If we want to see what this looks like as a plot: 
+![Linked across a row](../images/NoteStep_linear.png)
+From this, we can clearly see the exponential change of steps in frequency. If we take log2 of both sides of the equation, then we should expect a linear result. If we plot that, we see:
+
+![Linked across a row](../images/NoteStep_log.png)
+
+And this is more so how we percieve a change in musical tones, which means our ears are senstive to sound waves in a non-linear manner, even if we percieve them linearly.
 
 ### Music Instruments
 To obtain a better appreciation of what separates a 'C' chord in piano and guitar, we will look at the Fourier transform of each. For a guitar C major chord we have:
