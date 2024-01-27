@@ -10,7 +10,7 @@ From this, we will compare this frequency to a known mathematical model, to dete
 ## Theory
 
 ### Frequency and Music Notes
-We will use the "C" note as an example. If we create a sinusodal wave that oscillates as a specific frequency, we get two spikes as our result from the Fourier transform (FT).  
+We will use the "C" note as an example. If we create a sinusodal wave that oscillates as a specific frequency, we obtain two spikes from the Fourier transform (FT).  
 
 ![Linked across a row](../images/middleC.png)
 In this case, we created a 261.6 Hz wave, and get two peaks following the FT, at -261.6 Hz and +261.6 Hz. The negative values are a consequence of the mathematics, and aren't interpretable for sound. For this exercise, we will ignore them and turn our focus to values above 0. 
@@ -51,7 +51,7 @@ Hopefully from the above, we can see:
 - the musical note we 'hear' is the dominant frequency in the wave
 - we can use a mathematical formula to determine the frequency of any musical note
 
-We can make our 'note detector' by pre-computing the frequency values of all the notes in a frequency range of interest (~10-5000 Hz), and then compare our detected frequency, to find how close it is to the theoretical frequency.
+We can make our 'note detector' by pre-computing the frequency values of all the notes in a frequency range of interest (~10-5000 Hz), and then compare our detected frequency to find the closest musical notes.
 
 ## Hardware setup
 To begin, you should set your hardware up as illustrated in the README.md file in the main directory. 
