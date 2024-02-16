@@ -32,7 +32,7 @@ From this, we can clearly see the exponential change of steps in frequency. If w
 And this is more so how we percieve a change in musical tones, which means our ears are senstive to sound waves in a non-linear manner, even if we percieve them linearly.
 
 ### Music Instruments
-To obtain a better appreciation of what separates a 'C' chord in piano and guitar, we will look at the Fourier transform of each. For a guitar C major chord we have:
+To obtain a better appreciation of what separates a 'C' chord in piano and guitar, we will look at the Fourier transform of each. The C Major chord contains the following notes: C, D, E, G, A. The soundwave and Fourier transform of a guitar C major chord looks like:
 
 ![Linked across a row](../images/GuitarC.png)
 
