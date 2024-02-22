@@ -89,6 +89,35 @@ void loop() {
     // debug mic noise
    //Serial.println(vReal[5]); 
 
+  /* C.R. new code for this:
+  below we loop 2-samples/2. The frequency of each bin will have width SAMPLING_FREQ/Samples:
+  SAMPLING_FREQ   40000
+  SAMPLES         1024 
+  Guitar vs piano, most notes we were picking up were frequencies below 2000 Hz. So we can increase samples, but also lower sampling freq.
+  If you lower sampling freq too much, this will probably cause some aliasing issues. But since this analysis looks at the peak fundamental frequency
+  Then we can probably get away with lower! Have them change the sampling frequency to 15000 and the samples to 4096 or 8192. 
+  This gives us a bin width of ~3.6 (or 1.8), which gives us enough to fit to at octave 2 which starts at 65 Hz. 
+  
+  */
+  // Find max frequency band:
+  int maxBinNum = 0;
+  int maxBinValue = 0;
+  for (int i = 2; i < (SAMPLES/2); i++){
+    if (vReal[i] > maxBinValue){
+      maxBinValue = vReal[i];
+      maxBinNum = i;
+    }
+  }
+
+  // Use this to find the max frequency. SAMPLING_FREQ/Samples
+
+  // Scale the bar height accordingly. 
+
+
+
+
+
+
   // Analyse FFT results
   for (int i = 2; i < (SAMPLES/2); i++){       // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.
     if (vReal[i] > NOISE) {                    // Add a crude noise filter
