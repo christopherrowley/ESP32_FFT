@@ -82,36 +82,32 @@ void loop() {
 
   // Compute FFT
   FFT.DCRemoval(); // Remove DC offset
-  FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
+  FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT - should help with aliasing too.
   FFT.Compute(FFT_FORWARD);
   FFT.ComplexToMagnitude();
+
+  // C.R. we can extract the major peak using a built in function:
+  double x = FFT.MajorPeak();
+  Serial.println(x, 6); // 6 is for 6 decimal points. 
+
  
     // debug mic noise
    //Serial.println(vReal[5]); 
 
   /* C.R. new code for this:
-  below we loop 2-samples/2. The frequency of each bin will have width SAMPLING_FREQ/Samples:
-  SAMPLING_FREQ   40000
-  SAMPLES         1024 
+  The frequency of each bin will have width SAMPLING_FREQ/Samples:
+  SAMPLING_FREQ   5000 // max detectable freq = 2500Hz
+  SAMPLES         2048 // gives us bin width 5000/2048 = 2.4
   Guitar vs piano, most notes we were picking up were frequencies below 2000 Hz. So we can increase samples, but also lower sampling freq.
   If you lower sampling freq too much, this will probably cause some aliasing issues. But since this analysis looks at the peak fundamental frequency
   Then we can probably get away with lower! Have them change the sampling frequency to 15000 and the samples to 4096 or 8192. 
   This gives us a bin width of ~3.6 (or 1.8), which gives us enough to fit to at octave 2 which starts at 65 Hz. 
-  
   */
-  // Find max frequency band:
-  int maxBinNum = 0;
-  int maxBinValue = 0;
-  for (int i = 2; i < (SAMPLES/2); i++){
-    if (vReal[i] > maxBinValue){
-      maxBinValue = vReal[i];
-      maxBinNum = i;
-    }
-  }
+  
 
-  // Use this to find the max frequency. SAMPLING_FREQ/Samples
 
   // Scale the bar height accordingly. 
+  
 
 
 
