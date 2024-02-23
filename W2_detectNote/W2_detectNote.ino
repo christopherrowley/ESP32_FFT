@@ -1,29 +1,37 @@
-// Edited to add Neomatrix support for easier compatibility with different layouts.
-// For time being, remove button.
+  /* C.R. new code for this:
+  The frequency of each bin will have width SAMPLING_FREQ/Samples:
+  SAMPLING_FREQ   5000 // max detectable freq = 2500Hz
+  SAMPLES         2048 // gives us bin width 5000/2048 = 2.4
+  Guitar vs piano, most notes we were picking up were frequencies below 2000 Hz. So we can increase samples, but also lower sampling freq.
+  If you lower sampling freq too much, this will probably cause some aliasing issues. But since this analysis looks at the peak fundamental frequency
+  Then we can probably get away with lower! Have them change the sampling frequency to 15000 and the samples to 4096 or 8192. 
+  This gives us a bin width of ~3.6 (or 1.8), which gives us enough to fit to at octave 2 which starts at 65 Hz. 
+  */
 
 #include <FastLED_NeoMatrix.h>
 #include <arduinoFFT.h>
+#include <math.h> 
 
 // User Configuration zone! //
 #define NOISE           600           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
-#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
+#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control. //C.R might not be needed
 #define LED_PIN         5             // LED strip data
 // End User Configuration zone //
 
 
-#define SAMPLES         1024          // Must be a power of 2
-#define SAMPLING_FREQ   40000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+#define SAMPLES         2048          // Must be a power of 2
+#define SAMPLING_FREQ   5000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
 #define MAX_MILLIAMPS   2000          // Careful with the amount of power here if running off USB port
 const int BRIGHTNESS_SETTINGS =150;  // Configureable brightness. If power draw is an issue, lower value
 #define LED_VOLTS       5             // Usually 5 or 12
-#define NUM_BANDS       16            // To change this, you will need to change the bunch of if statements describing the mapping from bins to bands
+#define NUM_BANDS       12            // To change this, you will need to change the bunch of if statements describing the mapping from bins to bands
 const uint8_t kMatrixWidth = 16;                          // Matrix width
 const uint8_t kMatrixHeight = 16;                         // Matrix height
 #define NUM_LEDS       (kMatrixWidth * kMatrixHeight)     // Total number of LEDs
-#define BAR_WIDTH      (kMatrixWidth  / (NUM_BANDS - 1))  // If width >= 8 light 1 LED width per bar, >= 16 light 2 LEDs width bar etc
+#define BAR_WIDTH      1                                  // If width >= 8 light 1 LED width per bar, >= 16 light 2 LEDs width bar etc
 #define TOP            (kMatrixHeight - 0)                // Don't allow the bars to go offscreen
 #define SERPENTINE     true                               // Set to false if you're LEDS are connected end to end, true if serpentine
 
@@ -31,11 +39,15 @@ const uint8_t kMatrixHeight = 16;                         // Matrix height
 unsigned int sampling_period_us;
 byte peak[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};              // The length of these arrays must be >= NUM_BANDS
 int oldBarHeights[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int bandValues[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int bar2Height = 0;                                       // store height of secondary note - account for intermediate notes
+int bar1Height = 0;                                       // store height of first note
+byte bar1Loc = 0;                                         // bin location of primary note
+byte bar2Loc = 0;                                         // bin location of secondary note
 double vReal[SAMPLES];
 double vImag[SAMPLES];
 unsigned long newTime;
 arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
+
 
 
 // FastLED stuff
@@ -67,11 +79,6 @@ void loop() {
 
   FastLED.clear();
 
-  // Reset bandValues[]
-  for (int i = 0; i<NUM_BANDS; i++){
-    bandValues[i] = 0;
-  }
-
   // Sample the audio pin
   for (int i = 0; i < SAMPLES; i++) {
     newTime = micros();
@@ -87,64 +94,42 @@ void loop() {
   FFT.ComplexToMagnitude();
 
   // C.R. we can extract the major peak using a built in function:
-  double x = FFT.MajorPeak();
-  Serial.println(x, 6); // 6 is for 6 decimal points. 
+  double peakF = FFT.MajorPeak();
+  Serial.println(peakF, 6); // 6 is for 6 decimal points. 
 
- 
-    // debug mic noise
+   // debug mic noise
    //Serial.println(vReal[5]); 
 
-  /* C.R. new code for this:
-  The frequency of each bin will have width SAMPLING_FREQ/Samples:
-  SAMPLING_FREQ   5000 // max detectable freq = 2500Hz
-  SAMPLES         2048 // gives us bin width 5000/2048 = 2.4
-  Guitar vs piano, most notes we were picking up were frequencies below 2000 Hz. So we can increase samples, but also lower sampling freq.
-  If you lower sampling freq too much, this will probably cause some aliasing issues. But since this analysis looks at the peak fundamental frequency
-  Then we can probably get away with lower! Have them change the sampling frequency to 15000 and the samples to 4096 or 8192. 
-  This gives us a bin width of ~3.6 (or 1.8), which gives us enough to fit to at octave 2 which starts at 65 Hz. 
-  */
-  
+  // Peak freq, and solve for number of steps (55.0040869Hz is A note Octave 1)
+  // take log2 using log math rule-> log2(x) = log10(X)/log10(2); [since log2 isnt a function]
+  double noteSteps = log10( peakF/55.0040869)/log10(2)  *12; 
 
+  // Take the remainder after division with 12 to remove octave scaling
+  noteSteps = noteSteps % 12; // % takes remainder following division, result is from 0 to 11
 
-  // Scale the bar height accordingly. 
-  
+  // Now we know we need to divide it up into 2 for 16 bar split
+  bar2Height = round((noteSteps % 1) * kMatrixHeight); // % takes remainder following division. might need to cast.
+  bar1Height = kMatrixHeight - bar2Height;
 
-
-
-
-
-
-  // Analyse FFT results
-  for (int i = 2; i < (SAMPLES/2); i++){       // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.
-    if (vReal[i] > NOISE) {                    // Add a crude noise filter
-   
-    
-    //16 bands, 12kHz top band
-      if (i>8   && i<=14  ) bandValues[0]  += (int)vReal[i];
-      if (i>14   && i<=18  ) bandValues[1]  += (int)vReal[i];
-      if (i>18   && i<=23  ) bandValues[2]  += (int)vReal[i];
-      if (i>23   && i<=28  ) bandValues[3]  += (int)vReal[i];
-      if (i>28   && i<=36  ) bandValues[4]  += (int)vReal[i];
-      if (i>36   && i<=45  ) bandValues[5]  += (int)vReal[i];
-      if (i>45   && i<=56  ) bandValues[6]  += (int)vReal[i];
-      if (i>56   && i<=71  ) bandValues[7]  += (int)vReal[i];
-      if (i>71   && i<=89  ) bandValues[8]  += (int)vReal[i];
-      if (i>89   && i<=111  ) bandValues[9]  += (int)vReal[i];
-      if (i>111   && i<=139  ) bandValues[10]  += (int)vReal[i];
-      if (i>139   && i<=175  ) bandValues[11]  += (int)vReal[i];
-      if (i>175   && i<=219  ) bandValues[12]  += (int)vReal[i];
-      if (i>219   && i<=275  ) bandValues[13]  += (int)vReal[i];
-      if (i>275   && i<=345  ) bandValues[14]  += (int)vReal[i];
-      if (i>345             ) bandValues[15]  += (int)vReal[i];
-
-    }
+  // deal with wrap around for A and G# 
+  bar1Loc = byte( floor(noteSteps));  // floor should come with math.h
+  if (bar1Loc == 11) {
+      bar2Loc = 0;
+  } else {
+      bar2Loc = bar1Loc+1;
   }
 
+  // Scale the bar height accordingly. 
   // Process the FFT data into bar heights
   for (byte band = 0; band < NUM_BANDS; band++) {
 
     // Scale the bars for the display
-    int barHeight = bandValues[band] / AMPLITUDE;
+    int barHeight = 0;
+    if (band == bar1Loc){
+      barHeight = bar1Height;
+    } else if (band == bar2Loc){
+      barHeight = bar2Height;
+    }
 
     // debug mic 
     // if (band == 3) Serial.println(barHeight); 
@@ -169,8 +154,8 @@ void loop() {
     oldBarHeights[band] = barHeight;
   }
 
-  // Decay peak
-  EVERY_N_MILLISECONDS(40) {
+  // Decay peak - C.R. was 40ms for W1
+  EVERY_N_MILLISECONDS(100) {
     for (byte band = 0; band < NUM_BANDS; band++)
       if (peak[band] > 0) peak[band] -= 1;
   }
