@@ -26,12 +26,13 @@ This is much simpler than the line in method, but you will be limited to the fre
     3. click "Ok" to close out of preferences. It should begin to add something.
     4. Go to `Tools->Board->Board Manager`
     5. A panel should pop up, and search "ESP32"
-    6. Download the version by Espressif Systems
+    6. Download the version by Espressif Systems (version 2.0.14 works)
     7. Now to set the board, go to `Tools->Board->esp32->"ESP32 Dev Module"`
+
 3. From the Arduino library manager, you will need:
-    - FastLED Neomatrix
-    - EasyButton libraries . 
-    - arduinoFFT library (Seems to work, but reports of `DCRemoval()` not working. If this is the case, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file [`Sketch->Include Library->Add .ZIP Library`])
+    - FastLED Neomatrix (by Marc Merlin v1.1.0)
+    - EasyButton libraries (by Evert Arias v2.0.3) 
+    - arduinoFFT library (by Enrique Condes v1.6.2) (Seems to work, but reports of `DCRemoval()` not working. If this is the case, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file [`Sketch->Include Library->Add .ZIP Library`])
     
     - To load the Arduino FFT (or other) library:
 
@@ -39,6 +40,8 @@ This is much simpler than the line in method, but you will be limited to the fre
                 The correct version is :// https://github.com/kosme/arduinoFFT
 4. Watch the video to see how to use it.
 5. To customsise it to your own matrix layout, read about Neomatrix layouts at [Adafruit](https://learn.adafruit.com/adafruit-neopixel-uberguide/neomatrix-library#layouts-2894555-5).
+
+You may also need the ESP32 driver: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers (install instructions in the Release Notes text file of the download)
 
 ## Other notes:
 Make sure that the Serial Monitor is using 115200 Baud rate. Also, upload speed should be the same (find this option under "Tools")

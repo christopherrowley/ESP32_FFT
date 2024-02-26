@@ -4,7 +4,7 @@
   SAMPLES         2048 // gives us bin width 5000/2048 = 2.4
   Guitar vs piano, most notes we were picking up were frequencies below 2000 Hz. So we can increase samples, but also lower sampling freq.
   If you lower sampling freq too much, this will probably cause some aliasing issues. But since this analysis looks at the peak fundamental frequency
-  Then we can probably get away with lower! Have them change the sampling frequency to 15000 and the samples to 4096 or 8192. 
+  Then we can probably get away with lower! Have them change the sampling frequency to 15000 and the samples to 4096 (not enough memory for 8192). 
   This gives us a bin width of ~3.6 (or 1.8), which gives us enough to fit to at octave 2 which starts at 65 Hz. 
   */
 
@@ -13,14 +13,13 @@
 #include <math.h> 
 
 // User Configuration zone! //
-#define NOISE           600           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
-#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control. //C.R might not be needed
+#define NOISE_PEAK      10500           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
 #define LED_PIN         5             // LED strip data
 // End User Configuration zone //
 
 
-#define SAMPLES         2048          // Must be a power of 2
-#define SAMPLING_FREQ   5000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+#define SAMPLES         4096          // Must be a power of 2
+#define SAMPLING_FREQ   8192         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
@@ -45,6 +44,8 @@ byte bar1Loc = 0;                                         // bin location of pri
 byte bar2Loc = 0;                                         // bin location of secondary note
 double vReal[SAMPLES];
 double vImag[SAMPLES];
+double peakF = 0.0;   // FFT peak frequency.
+double peakM = 0.0;  // FFT peak magnitude
 unsigned long newTime;
 arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
 
@@ -94,64 +95,72 @@ void loop() {
   FFT.ComplexToMagnitude();
 
   // C.R. we can extract the major peak using a built in function:
-  double peakF = FFT.MajorPeak();
-  Serial.println(peakF, 6); // 6 is for 6 decimal points. 
+  FFT.MajorPeak( &peakF, &peakM);
 
-   // debug mic noise
-   //Serial.println(vReal[5]); 
+  Serial.print(peakF, 2); // Frequency of Peak -> 2 is for 2 decimal points. 
+  Serial.print(", ");
+  Serial.println(peakM, 2); // Magnitude of Peak
 
-  // Peak freq, and solve for number of steps (55.0040869Hz is A note Octave 1)
-  // take log2 using log math rule-> log2(x) = log10(X)/log10(2); [since log2 isnt a function]
-  double noteSteps = log10( peakF/55.0040869)/log10(2)  *12; 
+  // Only light up bars if peakF is greater than NOISE_PEAK
 
-  // Take the remainder after division with 12 to remove octave scaling
-  noteSteps = noteSteps % 12; // % takes remainder following division, result is from 0 to 11
+  if (peakM > NOISE_PEAK ) {
 
-  // Now we know we need to divide it up into 2 for 16 bar split
-  bar2Height = round((noteSteps % 1) * kMatrixHeight); // % takes remainder following division. might need to cast.
-  bar1Height = kMatrixHeight - bar2Height;
+    // Peak freq, and solve for number of steps (55.0040869Hz is A note Octave 1)
+    // take log2 using log math rule-> log2(x) = log10(X)/log10(2); [since log2 isnt a function]
+    double noteSteps = log10( peakF/55.0040869)/log10(2)  *12; 
 
-  // deal with wrap around for A and G# 
-  bar1Loc = byte( floor(noteSteps));  // floor should come with math.h
-  if (bar1Loc == 11) {
-      bar2Loc = 0;
+    // Take the remainder after division with 12 to remove octave scaling
+    noteSteps = fmod(noteSteps,  12); // % takes remainder following division, result is from 0 to 11
+
+    // Now we know we need to divide it up into 2 for 16 bar split
+    bar2Height = round( fmod(noteSteps, 1) * kMatrixHeight); // % takes remainder following division. might need to cast.
+    bar1Height = kMatrixHeight - bar2Height;
+
+    // deal with wrap around for A and G# 
+    bar1Loc = byte( floor(noteSteps));  // floor should come with math.h
+    if (bar1Loc == 11) {
+        bar2Loc = 0;
+    } else {
+        bar2Loc = bar1Loc+1;
+    }
+
+    // Scale the bar height accordingly. 
+    // Process the FFT data into bar heights
+    for (byte band = 0; band < NUM_BANDS; band++) {
+
+      // Scale the bars for the display
+      int barHeight = 0;
+      if (band == bar1Loc){
+        barHeight = bar1Height;
+      } else if (band == bar2Loc){
+        barHeight = bar2Height;
+      }
+
+      // debug mic 
+      // if (band == 3) Serial.println(barHeight); 
+
+      if (barHeight > TOP) barHeight = TOP;
+
+      // Small amount of averaging between frames
+      barHeight = ((oldBarHeights[band] * 1) + barHeight) / 2;
+
+      // Move peak up
+      if (barHeight > peak[band]) {
+        peak[band] = min(TOP, barHeight);
+      }
+
+      // Draw bars
+      purpleBars(band, barHeight);
+
+      // Draw peaks
+      whitePeak(band);
+
+      // Save oldBarHeights for averaging later
+      oldBarHeights[band] = barHeight;
+    }
   } else {
-      bar2Loc = bar1Loc+1;
-  }
-
-  // Scale the bar height accordingly. 
-  // Process the FFT data into bar heights
-  for (byte band = 0; band < NUM_BANDS; band++) {
-
-    // Scale the bars for the display
-    int barHeight = 0;
-    if (band == bar1Loc){
-      barHeight = bar1Height;
-    } else if (band == bar2Loc){
-      barHeight = bar2Height;
-    }
-
-    // debug mic 
-    // if (band == 3) Serial.println(barHeight); 
-
-    if (barHeight > TOP) barHeight = TOP;
-
-    // Small amount of averaging between frames
-    barHeight = ((oldBarHeights[band] * 1) + barHeight) / 2;
-
-    // Move peak up
-    if (barHeight > peak[band]) {
-      peak[band] = min(TOP, barHeight);
-    }
-
-    // Draw bars
-    purpleBars(band, barHeight);
-
-    // Draw peaks
-    whitePeak(band);
-
-    // Save oldBarHeights for averaging later
-    oldBarHeights[band] = barHeight;
+    // If just background noise, display blank
+    FastLED.clear();
   }
 
   // Decay peak - C.R. was 40ms for W1
