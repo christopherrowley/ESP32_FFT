@@ -36,7 +36,6 @@ const uint8_t kMatrixHeight = 16;                         // Matrix height
 
 // Sampling and FFT stuff
 unsigned int sampling_period_us;
-byte peak[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};              // The length of these arrays must be >= NUM_BANDS
 int oldBarHeights[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int bar2Height = 0;                                       // store height of secondary note - account for intermediate notes
 int bar1Height = 0;                                       // store height of first note
@@ -48,8 +47,7 @@ double peakF = 0.0;   // FFT peak frequency.
 double peakM = 0.0;  // FFT peak magnitude
 unsigned long newTime;
 arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
-
-
+int centerShift = 2;  // Number of columns to shift bars over
 
 // FastLED stuff
 CRGB leds[NUM_LEDS];
@@ -97,13 +95,15 @@ void loop() {
   // C.R. we can extract the major peak using a built in function:
   FFT.MajorPeak( &peakF, &peakM);
 
-  Serial.print(peakF, 2); // Frequency of Peak -> 2 is for 2 decimal points. 
-  Serial.print(", ");
-  Serial.println(peakM, 2); // Magnitude of Peak
+  // Serial.print(peakF, 2); // Frequency of Peak -> 2 is for 2 decimal points. 
+  // Serial.print(", ");
+  // Serial.println(peakM, 2); // Magnitude of Peak
 
   // Only light up bars if peakF is greater than NOISE_PEAK
 
   if (peakM > NOISE_PEAK ) {
+
+    FastLED.clear(); // Fresh canvas
 
     // Peak freq, and solve for number of steps (55.0040869Hz is A note Octave 1)
     // take log2 using log math rule-> log2(x) = log10(X)/log10(2); [since log2 isnt a function]
@@ -113,60 +113,51 @@ void loop() {
     noteSteps = fmod(noteSteps,  12); // % takes remainder following division, result is from 0 to 11
 
     // Now we know we need to divide it up into 2 for 16 bar split
-    bar2Height = round( fmod(noteSteps, 1) * kMatrixHeight); // % takes remainder following division. might need to cast.
+    bar2Height = round( fmod(noteSteps, 1) * kMatrixHeight)-1; // % takes remainder following division. might need to cast.
     bar1Height = kMatrixHeight - bar2Height;
 
     // deal with wrap around for A and G# 
     bar1Loc = byte( floor(noteSteps));  // floor should come with math.h
+
     if (bar1Loc == 11) {
         bar2Loc = 0;
     } else {
         bar2Loc = bar1Loc+1;
     }
 
-    // Scale the bar height accordingly. 
-    // Process the FFT data into bar heights
-    for (byte band = 0; band < NUM_BANDS; band++) {
 
-      // Scale the bars for the display
-      int barHeight = 0;
-      if (band == bar1Loc){
-        barHeight = bar1Height;
-      } else if (band == bar2Loc){
-        barHeight = bar2Height;
-      }
+    // Set Bar1
+    // Small amount of averaging between frames
+    float t1 = float(oldBarHeights[bar1Loc]);
+    float t2 = float(bar1Height);
+    float roundBar = round( ( t1*1.0 + 3.0*t2 ) / 4.0); 
 
-      // debug mic 
-      // if (band == 3) Serial.println(barHeight); 
+    int barHeight = int(roundBar); // Push back to integer
+    if (barHeight > TOP) barHeight = TOP;
 
-      if (barHeight > TOP) barHeight = TOP;
+    // Draw bars
+    purpleBars(bar1Loc, barHeight); 
 
-      // Small amount of averaging between frames
-      barHeight = ((oldBarHeights[band] * 1) + barHeight) / 2;
+    // Save oldBarHeights for averaging later
+    oldBarHeights[bar1Loc] = barHeight;
 
-      // Move peak up
-      if (barHeight > peak[band]) {
-        peak[band] = min(TOP, barHeight);
-      }
+    // Set Bar2
+    t1 = float(oldBarHeights[bar2Loc]);
+    t2 = float(bar2Height);
+    roundBar = round( ( t1*1.0 + 3.0*t2 ) / 4.0); 
 
-      // Draw bars
-      purpleBars(band, barHeight);
+    barHeight = int(roundBar); // Push back to integer
+    if (barHeight > TOP) barHeight = TOP;
 
-      // Draw peaks
-      whitePeak(band);
+    // Draw bars
+    purpleBars(bar2Loc, barHeight); 
 
-      // Save oldBarHeights for averaging later
-      oldBarHeights[band] = barHeight;
-    }
+    // Save oldBarHeights for averaging later
+    oldBarHeights[bar2Loc] = barHeight;
+
   } else {
     // If just background noise, display blank
     FastLED.clear();
-  }
-
-  // Decay peak - C.R. was 40ms for W1
-  EVERY_N_MILLISECONDS(100) {
-    for (byte band = 0; band < NUM_BANDS; band++)
-      if (peak[band] > 0) peak[band] -= 1;
   }
 
   FastLED.show();
@@ -174,7 +165,7 @@ void loop() {
 
 // PATTERNS BELOW //
 void purpleBars(int band, int barHeight) {
-  int xStart = BAR_WIDTH * band;
+  int xStart = NUM_BANDS - BAR_WIDTH * band+ centerShift-1; // Move from left to right
   for (int x = xStart; x < xStart + BAR_WIDTH; x++) {
     for (int y = TOP; y >= TOP - barHeight; y--) {
       matrix->drawPixel(x, y, ColorFromPalette(purplePal, y * (255 / (barHeight + 1)), BRIGHTNESS_SETTINGS));
@@ -182,12 +173,5 @@ void purpleBars(int band, int barHeight) {
   }
 }
 
-void whitePeak(int band) {
-  int xStart = BAR_WIDTH * band;
-  int peakHeight = TOP - peak[band] - 1;
-  for (int x = xStart; x < xStart + BAR_WIDTH; x++) {
-    matrix->drawPixel(x, peakHeight, CHSV(0,0,200));
-  }
-}
 
 

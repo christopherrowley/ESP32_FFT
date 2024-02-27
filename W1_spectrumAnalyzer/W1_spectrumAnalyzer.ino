@@ -155,7 +155,7 @@ void loop() {
 
 // PATTERNS BELOW //
 void purpleBars(int band, int barHeight) {
-  int xStart = BAR_WIDTH * band;
+  int xStart = NUM_BANDS - BAR_WIDTH * band-1; // left to right
   for (int x = xStart; x < xStart + BAR_WIDTH; x++) {
     for (int y = TOP; y >= TOP - barHeight; y--) {
       matrix->drawPixel(x, y, ColorFromPalette(purplePal, y * (255 / (barHeight + 1)), BRIGHTNESS_SETTINGS));
@@ -164,7 +164,7 @@ void purpleBars(int band, int barHeight) {
 }
 
 void whitePeak(int band) {
-  int xStart = BAR_WIDTH * band;
+  int xStart = NUM_BANDS - BAR_WIDTH * band-1; // left to right
   int peakHeight = TOP - peak[band] - 1;
   for (int x = xStart; x < xStart + BAR_WIDTH; x++) {
     matrix->drawPixel(x, peakHeight, CHSV(0,0,200));
