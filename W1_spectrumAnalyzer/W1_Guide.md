@@ -1,4 +1,4 @@
-# Workshop Guide!
+# Workshop Exercise 1 Guide!
 
 Welcome to the spectrum analyzer workshop! In this workshop, we build a spectrum analyzer, where the LED vertical bars correspond to the sound within a particular frequency band (ie 400-1000 Hz). The amount of squares lit up with each bar will correspond to the relative amount of sound in that frequency.
 
@@ -11,6 +11,7 @@ In order to achieve this, we will also have to become familiar with breadboards,
 To begin, you should set your hardware up as illustrated in the README.md file in the main directory. 
 
 Before Plugging into the breadboard, view the following diagrams to know how the wiring works on a breadboard.
+
 ![Linked across a row](horizontal-rows.png)
 
 Due to the size of the ESP32, you will need to have it straddle two breadboards. 

@@ -1,4 +1,4 @@
-# Workshop Guide!
+# Workshop Exercise 2 Guide!
 
 Welcome to the music note analyzer workshop! In this workshop, we build aim to build a device that provides the information necessary to tune an instrument.
 
@@ -13,6 +13,7 @@ From this, we will compare this frequency to a known mathematical model, to dete
 We will use the "C" note as an example. If we create a sinusodal wave that oscillates as a specific frequency, we obtain two spikes from the Fourier transform (FT).  
 
 ![Linked across a row](../images/middleC.png)
+
 In this case, we created a 261.6 Hz wave, and get two peaks following the FT, at -261.6 Hz and +261.6 Hz. The negative values are a consequence of the mathematics, and aren't interpretable for sound. For this exercise, we will ignore them and turn our focus to values above 0. 
 
 This is great! We can determine the frequency content of an incoming sound wave, but how does this map to musical notes? 
@@ -24,23 +25,36 @@ We know that the frequency of musical notes changes exponentially, with base 2. 
 The means that the frequency of each note varies by a factor of  2<sup>(1/12)</sup> or ~1.05946. If we know that note 'C' in Octave 0 has frequency 16.35 Hz, we can use this as f<sub>0</sub> to map to any other music note. For example, we calculate that the plotted 'Middle C' note is 49 musical note steps away from this base note. 
 
 If we want to see what this looks like as a plot: 
+
 ![Linked across a row](../images/NoteStep_linear.png)
+
 From this, we can clearly see the exponential change of steps in frequency. If we take log2 of both sides of the equation, then we should expect a linear result. If we plot that, we see:
 
 ![Linked across a row](../images/NoteStep_log.png)
 
 And this is more so how we percieve a change in musical tones, which means our ears are senstive to sound waves in a non-linear manner, even if we percieve them linearly.
 
-### Music Instruments
-To obtain a better appreciation of what separates a 'C' chord in piano and guitar, we will look at the Fourier transform of each. The C Major chord contains the following notes: C, D, E, G, A. The soundwave and Fourier transform of a guitar C major chord looks like:
+In chart form, we can see all the frequencies listed:
+
+![Linked across a row](../images/NoteChart.png)
+
+The chart points out a few reference values:
+- Middle C for the piano is 261.63 Hz
+- The A in octave 0 has a frequency of 27.5 Hz, and is the lowest note on a piano
+- The piano's highest note is a C in the 8th octave, at 4186.01 Hz
+- A guitar's lowest note is the 2nd octave E at 82.41 Hz
+
+### Musical Instruments
+To obtain a better appreciation of what separates a 'C' chord in piano and guitar, we will look at the Fourier transform of each. The C Major chord contains the following notes: C, D, E, G, A and B. The soundwave and Fourier transform of a guitar C major chord looks like:
 
 ![Linked across a row](../images/GuitarC.png)
 
-The input audio looks quite random, but from the FT of that signal, we can see discrete peaks. If we look into the values of these peaks we see that they align with different musical notes! We perceive this to be a 'C' note, because it is the largest peak in the FT. We won't go into the music theory of what other notes best pair to make a nice sounding 'chord'. 
+The input audio looks quite random, but from the FT of that signal, we can see has discrete peaks. If we look into the values of these peaks we see that they align with different musical notes! We perceive this to be a 'C' note, because it is the largest peak in the FT. We won't go into the music theory of what other notes best pair to make a nice sounding 'chord'. 
 
 Let us compare the frequency spectrum from a guitar to one from a piano. The piano note is one octave lower to help us visualize differences. 
 
 ![Linked across a row](../images/GuitarVsPiano.png)
+
 We have a primary difference of 1 octave in the C notes. But you can see that despite the piano being a lower note, it has more high frequency content that provides its characteristic sound. 
 
 Hopefully this helps illustrate the usefulness of the fourier transform. Now we have a quantitative metric to be able to compare two signals, that provides meaningful interpretation. 
@@ -57,6 +71,7 @@ We can make our 'note detector' by pre-computing the frequency values of all the
 To begin, you should set your hardware up as illustrated in the README.md file in the main directory. 
 
 Before Plugging into the breadboard, view the following diagrams to know how the wiring works on a breadboard.
+
 ![Linked across a row](horizontal-rows.png)
 
 Due to the size of the ESP32, you will need to have it straddle two breadboards. 
