@@ -12,15 +12,15 @@ To begin, you should set your hardware up as illustrated in the README.md file i
 
 Before Plugging into the breadboard, view the following diagrams to know how the wiring works on a breadboard.
 
-![Linked across a row](horizontal-rows.png)
+![Linked across a row](../images/horizontal-rows.png)
 
 Due to the size of the ESP32, you will need to have it straddle two breadboards. 
 
-![Linked across a row](horizontal-withIC.png)
+![Linked across a row](../images/horizontal-withIC.png)
 
 The LED matrix has 3 sets of wires as seen in the picture below:
 
-![LED wiring](LED_wires.png)
+![LED wiring](../images/LED_wires.png)
 
 Since we are working with a single matrix, we don't need to worry about the 'increase voltage wire' or the '3PIN Male Connector'. You want to connect to the Data Input - Female Connector. This is easy to distinguish as it is the only one that you should be able to insert a jumper cable into. 
 

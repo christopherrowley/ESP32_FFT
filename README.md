@@ -14,7 +14,7 @@ When choosing the pin for your button, be careful. Some pins on the ESP32 don't 
 
 
 ### Microphone
-![Circuit for using a microphone](Microphone_bb.png)
+![Circuit for using a microphone](images/Microphone_bb.png)
 
 This is much simpler than the line in method, but you will be limited to the frequencies that you can detect by the sensititivy of the microphone. You need a mic with on-board amplification, commonly something like the MAX4466 which can be bought cheaply from eBay or alixepress. You would get better results with an I2S microphone, but that is beyond the scope of this project. Turn up the gain on whatever microphone you have. The mic should be connected to GND, 3V3 and the output pin to D35. Pin D5 is the LED data pin and is connected to the first LED in the matrix. Pin D2 is connected to a momentary push button which is used to change display modes.
 
