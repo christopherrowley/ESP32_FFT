@@ -1,4 +1,0 @@
-Ideas for progressions:
-1. create a vector that contains the previous X amount of points. Set the amplitude to be the maximum of this vector, and the the noise to be the minimum + 0.5* the standard deviation
-
-2. Convert the spectrum analyzer, into an instrument tuner. Each bar should represent a note. If you are between notes, it should light up 2 bars. The height of each bar should be proportional to how close you are to that note. 
