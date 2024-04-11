@@ -45,7 +45,6 @@ DEFINE_GRADIENT_PALETTE( purple_gp ) {
 255, 179,   0, 255 }; //purple
 CRGBPalette16 purplePal = purple_gp;
 
-
 // FastLED_NeoMaxtrix - see https://github.com/marcmerlin/FastLED_NeoMatrix for Tiled Matrixes, Zig-Zag and so forth
 FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, kMatrixWidth, kMatrixHeight,
   NEO_MATRIX_TOP        + NEO_MATRIX_LEFT +
@@ -60,8 +59,6 @@ void setup() {
   FastLED.clear();
   sampling_period_us = round(1000000 * (1.0 / SAMPLING_FREQ));
 }
-
-
 
 void loop() {
 

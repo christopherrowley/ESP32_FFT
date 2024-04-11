@@ -1,25 +1,37 @@
 This code originally came from: https://github.com/s-marley/ESP32_FFT_VU
 It has been simplified and edited to be used for workshops.
 
-# ESP32_FFT_VU
-A spectrum analyzer VU meter running a 40kHz FFT on an ESP32 and outputting to a 16 x 16 FastLED matrix. The code is heavily modified from [this example](https://github.com/G6EJD/ESP32-8266-Audio-Spectrum-Display/blob/master/ESP32_Spectrum_Display_02.ino) originally written by G6EJD.
-
-## Demo
-If you are planning on using this code, it is advisable to watch the YouTube video below explaining how it works. Please note, the code has changed to use FastLED Neomatrix since the video was produced thanks to [VonHirsch](https://github.com/VonHirsch/). See 'Installation and code usage' below.
-
-[![Youtube video of VU meter in action](http://img.youtube.com/vi/Mgh2WblO5_c/0.jpg)](https://www.youtube.com/watch?v=Mgh2WblO5_c)
-
-## Setting up the circuit
-When choosing the pin for your button, be careful. Some pins on the ESP32 don't have pullup resistors, and if you choose one of these the button won't work! When I was testing, I found that D2 didn't work, but D4 did so I went with that one.
 
 
-### Microphone
-![Circuit for using a microphone](images/Microphone_bb.png)
+## Hardware setup
 
-This is much simpler than the line in method, but you will be limited to the frequencies that you can detect by the sensititivy of the microphone. You need a mic with on-board amplification, commonly something like the MAX4466 which can be bought cheaply from eBay or alixepress. You would get better results with an I2S microphone, but that is beyond the scope of this project. Turn up the gain on whatever microphone you have. The mic should be connected to GND, 3V3 and the output pin to D35. Pin D5 is the LED data pin and is connected to the first LED in the matrix. Pin D2 is connected to a momentary push button which is used to change display modes.
+Before Plugging into the breadboard, view the following diagrams to know how the wiring works on a breadboard.
+
+![Linked across a row](images/horizontal-rows.png)
+
+Due to the size of the ESP32, you will need to have it straddle two breadboards. 
+
+![Linked across a row](images/horizontal-withIC.png)
+
+The LED matrix has 3 sets of wires as seen in the picture below:
+
+![LED wiring](images/LED_wires.png)
+
+Since we are working with a single matrix, we don't need to worry about the 'increase voltage wire' or the '3PIN Male Connector'. You want to connect to the Data Input - Female Connector. This is easy to distinguish as it is the only one that you should be able to insert a jumper cable into. 
+
+With this working knowledge, we can connect parts with jumper cables by plugging into the same row without crossing the gutter. The following connections need to be made:
+- Connect the data line from the LED matrix to D5 on the ESP32
+- Connect the VIN line from the LED matrix to VIN on the ESP32
+- Connect the GND line from the LED matrix to GND next to VIN on the ESP32 (should be right next to it)
+- Connect the data line (OUT) from the microphone to D35 on the ESP32
+- Connect the VCC line from the microphone to 3V3 on the ESP32
+- Connect the GND line from the microphone to GND next to the 3V3 on the ESP32 (should be right next to it)
+- Connect the ESP32 to the computer using the microUSB cord. This provides power to the entire system.
+
+![Circuit for using a microphone](images/esp32Circuit.png)
 
 ## Installation and code usage
-1. Download this repository and open ESP32_FFT_VU.ino.
+1. Download this repository and open W1_spectrumAnalyzer.ino.
 2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.
     1. Go to `File->Preferences->Additional Board Manager URLs`
     2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
@@ -31,15 +43,13 @@ This is much simpler than the line in method, but you will be limited to the fre
 
 3. From the Arduino library manager, you will need:
     - FastLED Neomatrix (by Marc Merlin v1.1.0)
-    - EasyButton libraries (by Evert Arias v2.0.3) 
-    - arduinoFFT library (by Enrique Condes v1.6.2) (Seems to work, but reports of `DCRemoval()` not working. If this is the case, so download it from the [GitHub repository](https://github.com/kosme/arduinoFFT) and install it from a zip file [`Sketch->Include Library->Add .ZIP Library`])
+    - arduinoFFT library (by Enrique Condes v1.6.2)
     
     - To load the Arduino FFT (or other) library:
 
         - In the IDE menu, select `Sketch->Include Library-> Manage Libraries->search for 'FFT'` 
                 The correct version is :// https://github.com/kosme/arduinoFFT
-4. Watch the video to see how to use it.
-5. To customsise it to your own matrix layout, read about Neomatrix layouts at [Adafruit](https://learn.adafruit.com/adafruit-neopixel-uberguide/neomatrix-library#layouts-2894555-5).
+
 
 You may also need the ESP32 driver: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers (install instructions in the Release Notes text file of the download)
 
@@ -49,13 +59,13 @@ Make sure that the Serial Monitor is using 115200 Baud rate. Also, upload speed 
 If you try to upload and it cannot find a connection, you may need to hold down the 'boot' button on the ESP32 until it starts writing.
 
 ## Workshop Guide!
-Each workshop is contained within its own folder. There is a markdown file within the folder that contains the instructions for that workshop. You can render a markdown file in Visual Studio code by using (Ctrl+K then V).
+Each workshop is contained within its own folder. There is a markdown (or PDF) file within the folder that contains the instructions for that workshop. You can render a markdown file in Visual Studio code by using (Ctrl+K then V).
 
 The workshops are meant to be done in the following order, as time permits:
-1. W1_spectrumAnalyzer.
+1. W1_spectrumAnalyzer
+2. W2_detectNote
 
-## Controls
-The matrix is controlled from a single button. The functions are:
-- Single press: Change pattern
+## If you finish early
+You can look to customsise your own matrix layout, read about Neomatrix layouts at [Adafruit](https://learn.adafruit.com/adafruit-neopixel-uberguide/neomatrix-library#layouts-2894555-5).
 
 

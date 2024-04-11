@@ -14,10 +14,10 @@
 
 // User Configuration zone! //
 #define NOISE_PEAK      10500           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
-#define LED_PIN         5             // LED strip data
+
 // End User Configuration zone //
 
-
+#define LED_PIN         5             // LED strip data
 #define SAMPLES         4096          // Must be a power of 2
 #define SAMPLING_FREQ   8192         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
 #define AUDIO_IN_PIN    35            // Signal in on this pin

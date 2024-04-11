@@ -1,6 +1,6 @@
 # Workshop Exercise 2 Guide!
 
-Welcome to the music note analyzer workshop! In this workshop, we build aim to build a device that provides the information necessary to tune an instrument.
+Welcome to the music note analyzer workshop activity! Here, we build aim to build a device that provides the information necessary to tune an instrument.
 
 ## Goals
 In this workshop, we hope to develop a conceptual understanding of how the frequencies of sound waves map to musical notes. Each instrument obtains its unique sound by producing sound waves at many frequencies. We will apply our knowledge of the Fourier Transform to uncover the dominant frequency in a sound wave, which ends up being the musical tone we perceive the sound to be at. 
@@ -57,7 +57,7 @@ Let us compare the frequency spectrum from a guitar to one from a piano. The pia
 
 We have a primary difference of 1 octave in the C notes. But you can see that despite the piano being a lower note, it has more high frequency content that provides its characteristic sound. 
 
-Hopefully this helps illustrate the usefulness of the fourier transform. Now we have a quantitative metric to be able to compare two signals, that provides meaningful interpretation. 
+Hopefully this helps illustrate the usefulness of the Fourier transform. Now we have a quantitative metric to be able to compare two signals, that provides meaningful interpretation. 
 
 ### Bringing It Together
 Hopefully from the above, we can see:
@@ -68,7 +68,7 @@ Hopefully from the above, we can see:
 We can make our 'note detector' by pre-computing the frequency values of all the notes in a frequency range of interest (~10-5000 Hz), and then compare our detected frequency to find the closest musical notes.
 
 ## Hardware setup
-To begin, you should set your hardware up as illustrated in the README.md file and in the W1_spectrumAnalyzer guide. 
+To begin, you should set your hardware up as illustrated in the README.md file. 
 
 
 ## Coding Steps:
@@ -76,36 +76,15 @@ To begin, you should set your hardware up as illustrated in the README.md file a
 
 2. If the upload was successful, and all the parts are properly connected, then you should see the lights working now if you are in a noisy environment. If not, make some noises to test it! 
 
-3. At the top of the arduino file, we have set up a user configuration zone. The main variable of interest is `NOISE`. This will be a different noise value compared to W1. This noise variable is so that we do not have the LEDs light up when we do not purposely play a sound. This effectively blocks out background noise.  If you are in a noisy location, increasing the `NOISE` variable can help. You can guess and check... Or we can have the ESP32 print us the data values from the microphone to the Serial Monitor. 
+3. At the top of the arduino file, we have set up a user configuration zone. The main variable of interest is `NOISE_PEAK`. This will be a different noise value compared to W1. This noise variable is so that we do not have the LEDs light up when we do not purposely play a sound. This effectively blocks out background noise.  If you are in a noisy location, increasing the `NOISE_PEAK` variable can help. You can guess and check... Or we can have the ESP32 print us the data values from the microphone to the Serial Monitor. (see next step!)
 
-4. Go to line ~90 and look for `//Serial.print( peakF,2);`. Remove the `//` to uncomment the line, and the following two lines.Re-upload the sketch to the ESP32. Go to the serial monitor and watch the values popping up on the screen. If you are not making any noise to the microphone, was is an average low value for peakM? Take that value, add 20-50, and set that as the `NOISE` variable. The peakF variable tells you what the peak frequency it is detecting, we will look at this later! Upload that update to the ESP32 and see how it now responds to noise at the bottom (quiet) end. Repeat as necessary so that the lights mostly start to turn on when you deliberately make noise.
-
-5. Now we want to set the peak. First, lets comment out the line from before, by adding `//` back in front of it. Now jump to line ~125 and look for: `// if (band == 3) Serial.println(barHeight);` Uncomment this line, and reupload to ESP32. Just like in the last step, we are watching the serial monitor, but now, looking for the maximum values we see. This time, we want to make some noise (but not too much!), so that we know what we want the value to be for full illumination. Once you find a value, set that as the `AMPLITUDE` variable. Upload that update to the ESP32 and see how it now responds to noise at the top (loud) end. Repeat as necessary so that the lights respond the way you would like them to. You may want to go back to step 4 if you feel like the `NOISE` could be further adjusted. It doesn't need to be perfect, as the level of noise in the room will be changing. You just want it set well enough that you can see how it responds to new incoming noise. 
+4. Go to line ~90 and look for `//Serial.print( peakF,2);`. Remove the `//` to uncomment the line, and the following two lines. Re-upload the sketch to the ESP32. Go to the serial monitor and watch the values popping up on the screen. If you are not making any noise to the microphone, what is an average low value for peakM? Take that value, add 100, and set that as the `NOISE_PEAK` variable. The peakF variable tells you what the peak frequency it is detecting, we will look at this later! Upload that update to the ESP32 and see how it now responds to noise at the bottom (quiet) end. Repeat as necessary so that the lights mostly start to turn on when you deliberately make noise.
 
 ## Testing Steps:
 
 The hard part is done and now the fun begins! We have the hardware working, and the code configured for our setup, now we want to put it to the test. We have a few audio files to test:
 
-1. We can start by playing the `middle C` file. A single note (created synthetically of course) will consist of a sine wave at a specific frequency. As we play this note, we should see a single bar light up. 
-2. Ok, so a single bar could have been a fluke. To test this some more, lets play a `frequency sweep` file. This should have the sound going from a low frequency to a high frequency. If our theory works, then we should see a bar light up on one side, and move across the LED matrix as it moves to a higher pitch.
-3. Enough of the synthetic waves! What about real audio? What gives a guitar the sound of a guitar, despite playing the same musical note as a piano? To better visualize this, we may want to adjust the frequencies that the bars of our LED correspond to. While we can hear from ~20- 20,000 Hz, most of the instrument and vocal frequencies are from the 20-10,000 Hz range. The first 5 octaves are all below 1,000 Hz. To better see how we can pick up small differences in notes, copy the following into your code from lines ~98 to ~114, replacing the `if` statements that are there:
-```   if (i<=3 )           bandValues[0]  += (int)vReal[i];
-      if (i>3   && i<=4  ) bandValues[1]  += (int)vReal[i];
-      if (i>4   && i<=5  ) bandValues[2]  += (int)vReal[i];
-      if (i>5   && i<=6  ) bandValues[3]  += (int)vReal[i];
-      if (i>6   && i<=7  ) bandValues[4]  += (int)vReal[i];
-      if (i>7   && i<=9  ) bandValues[5]  += (int)vReal[i];
-      if (i>9   && i<=11  ) bandValues[6]  += (int)vReal[i];
-      if (i>11   && i<=14  ) bandValues[7]  += (int)vReal[i];
-      if (i>14   && i<=18  ) bandValues[8]  += (int)vReal[i];
-      if (i>18   && i<=22  ) bandValues[9]  += (int)vReal[i];
-      if (i>22   && i<=28  ) bandValues[10]  += (int)vReal[i];
-      if (i>28   && i<=35  ) bandValues[11]  += (int)vReal[i];
-      if (i>35   && i<=44  ) bandValues[12]  += (int)vReal[i];
-      if (i>44   && i<=55  ) bandValues[13]  += (int)vReal[i];
-      if (i>55   && i<=69  ) bandValues[14]  += (int)vReal[i];
-      if (i>69             ) bandValues[15]  += (int)vReal[i];
+1. We can start by playing the `middle C` file. A single note (created synthetically of course) will consist of a sine wave at a specific frequency. As we play this note, we should see a single bar light up. Test that you get different bars lighting up for `A_octave2.wav` and `G_octave5.wav`. 
+2. In W1 the  `frequencySweep.wav` file scanned its way across the LED matrix. How do we expect that behaviour to change under this configuration? Test it to see if the results match your expectation! 
+3. The files tested above only played a single note at each point in time. What if we played multiple notes at once, as a typical instrument would? Included are the `GuitarC.wav` and `PianoC.wav` files that the Fourier transforms were plotted above. If they are both 'C' notes, they should both light up the same bar. Is that what you observe? 
 
-```
-3. Continued... This changes the bins to be sensitive to frequencies between 100 and 3,000 Hz (2nd to into the 7th Octave). Before you upload this change, try talking into your microphone and see how the bars are clustered together. How does that change with the new frequency range of the bars? 
-4. Now we want to do what we set out to do in 3. Lets play and compare a C note from a guitar and a piano. How do the bars look?
