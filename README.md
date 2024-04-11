@@ -48,7 +48,7 @@ With this working knowledge, we can connect parts with jumper cables by plugging
     - To load the Arduino FFT (or other) library:
 
         - In the IDE menu, select `Sketch->Include Library-> Manage Libraries->search for 'FFT'` 
-                The correct version is :// https://github.com/kosme/arduinoFFT
+                The correct version is https://github.com/kosme/arduinoFFT
 
 
 You may also need the ESP32 driver: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers (install instructions in the Release Notes text file of the download)
