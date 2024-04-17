@@ -92,7 +92,7 @@ void loop() {
    
     
     //16 bands, 12kHz top band
-      if (i>8   && i<=14  ) bandValues[0]  += (int)vReal[i];
+      if (i<=14 )           bandValues[0]  += (int)vReal[i];
       if (i>14   && i<=18  ) bandValues[1]  += (int)vReal[i];
       if (i>18   && i<=23  ) bandValues[2]  += (int)vReal[i];
       if (i>23   && i<=28  ) bandValues[3]  += (int)vReal[i];
@@ -108,6 +108,9 @@ void loop() {
       if (i>219   && i<=275  ) bandValues[13]  += (int)vReal[i];
       if (i>275   && i<=345  ) bandValues[14]  += (int)vReal[i];
       if (i>345             ) bandValues[15]  += (int)vReal[i];
+
+
+
 
     }
   }
