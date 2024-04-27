@@ -13,7 +13,7 @@
 #include <math.h> 
 
 // User Configuration zone! //
-#define NOISE_PEAK      8500           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
+#define NOISE_PEAK      15000           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
 
 // End User Configuration zone //
 

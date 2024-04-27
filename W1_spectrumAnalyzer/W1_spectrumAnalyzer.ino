@@ -5,8 +5,8 @@
 #include <arduinoFFT.h>
 
 // User Configuration zone! //
-#define NOISE           600           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
-#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
+#define NOISE           50           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
+#define AMPLITUDE       900          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
 #define LED_PIN         5             // LED strip data
 // End User Configuration zone //
 
