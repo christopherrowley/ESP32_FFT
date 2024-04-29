@@ -13,7 +13,7 @@
 #include <math.h> 
 
 // User Configuration zone! //
-#define NOISE_PEAK      15000           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
+#define NOISE_PEAK      100           // Used as a crude noise filter, values below this are ignored was 15000 for MAX4466
 
 // End User Configuration zone //
 
@@ -51,10 +51,40 @@ int centerShift = 2;  // Number of columns to shift bars over
 
 // FastLED stuff
 CRGB leds[NUM_LEDS];
-DEFINE_GRADIENT_PALETTE( purple_gp ) {
-  0,   0, 255, 255,   //blue
-255, 179,   0, 255 }; //purple
-CRGBPalette16 purplePal = purple_gp;
+
+// ***************************************************
+// Define different colors, pick one! Comment out the others
+// takes 4 values: index, then RGB
+
+// // Purple-blue
+// DEFINE_GRADIENT_PALETTE( colour_gp ) {
+//   0,   0,  0, 255,   //blue
+// 255, 179,   0, 255 }; //purple
+
+// // Sunset
+// DEFINE_GRADIENT_PALETTE( colour_gp ) {
+//   0, 141,   0, 180,   //purple
+// 127, 255, 192,   0,   //yellow
+// 255,   0,   5, 255 };  //blue
+
+// Rainbow
+DEFINE_GRADIENT_PALETTE( colour_gp ) {
+  0,   255, 0,  0,   //red
+ 50,   255, 128, 0,   //orange
+100,   255,   255, 0,   //yellow
+150,   0, 255, 0,   //green
+200,   0, 0, 255,   //blue
+255,   141,   0, 100 }; //purple
+
+// Fire
+// DEFINE_GRADIENT_PALETTE( colour_gp ) {
+// 0,   200, 200,  200,   //white 
+// 70,   255, 218,    0,   //yellow
+// 175,   255,   0,    0,  //red
+// 255,   150,   0,    0 };  //red
+
+// ***************************************************
+CRGBPalette16 colourPal = colour_gp;
 
 
 // FastLED_NeoMaxtrix - see https://github.com/marcmerlin/FastLED_NeoMatrix for Tiled Matrixes, Zig-Zag and so forth
@@ -71,7 +101,6 @@ void setup() {
   FastLED.clear();
   sampling_period_us = round(1000000 * (1.0 / SAMPLING_FREQ));
 }
-
 
 
 void loop() {
@@ -136,7 +165,7 @@ void loop() {
     if (barHeight > TOP) barHeight = TOP;
 
     // Draw bars
-    purpleBars(bar1Loc, barHeight); 
+    colourBars(bar1Loc, barHeight); 
 
     // Save oldBarHeights for averaging later
     oldBarHeights[bar1Loc] = barHeight;
@@ -150,7 +179,7 @@ void loop() {
     if (barHeight > TOP) barHeight = TOP;
 
     // Draw bars
-    purpleBars(bar2Loc, barHeight); 
+    colourBars(bar2Loc, barHeight); 
 
     // Save oldBarHeights for averaging later
     oldBarHeights[bar2Loc] = barHeight;
@@ -164,11 +193,12 @@ void loop() {
 }
 
 // PATTERNS BELOW //
-void purpleBars(int band, int barHeight) {
+void colourBars(int band, int barHeight) {
   int xStart = NUM_BANDS - BAR_WIDTH * band+ centerShift-1; // Move from left to right
   for (int x = xStart; x < xStart + BAR_WIDTH; x++) {
     for (int y = TOP; y >= TOP - barHeight; y--) {
-      matrix->drawPixel(x, y, ColorFromPalette(purplePal, y * (255 / (barHeight + 1)), BRIGHTNESS_SETTINGS));
+      matrix->drawPixel(x, y, ColorFromPalette( colourPal, y* 255/TOP , BRIGHTNESS_SETTINGS, LINEARBLEND)); // Same Colour across
+      // matrix->drawPixel(x, y, ColorFromPalette( colourPal, y * (255 / (barHeight + 1)), BRIGHTNESS_SETTINGS)); // or slide colour bar up
     }
   }
 }

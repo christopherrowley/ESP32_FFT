@@ -72,19 +72,29 @@ To begin, you should set your hardware up as illustrated in the README.md file.
 
 
 ## Coding Steps:
-1. Start by uploading W2_detectNote.ino to the ESP32 with all the default values. You may need to check that you have the right COM port selected. Hold down the boot button on the ESP32 while uploading. 
+1. Start by selecting the colour scheme you want by uncommenting only one section in Lines 55-85. This is done by toggling the comments (quick way is to highlight text and press CTRL+ '/'). The default is the rainbow colour scheme.
 
-2. If the upload was successful, and all the parts are properly connected, then you should see the lights working now if you are in a noisy environment. If not, make some noises to test it! 
+2. Next, upload W2_detectNote.ino to the ESP32 with all the default values. You may need to check that you have the right COM port selected. Hold down the boot button on the ESP32 while uploading. 
 
-3. At the top of the arduino file, we have set up a user configuration zone. The main variable of interest is `NOISE_PEAK`. This will be a different noise value compared to W1. This noise variable is so that we do not have the LEDs light up when we do not purposely play a sound. This effectively blocks out background noise.  If you are in a noisy location, increasing the `NOISE_PEAK` variable can help. You can guess and check... Or we can have the ESP32 print us the data values from the microphone to the Serial Monitor. (see next step!)
+3. If the upload was successful, and all the parts are properly connected, then you should see the lights working now if you are in a noisy environment. If not, make some noises to test it! 
 
-4. Go to line ~90 and look for `//Serial.print( peakF,2);`. Remove the `//` to uncomment the line, and the following two lines. Re-upload the sketch to the ESP32. Go to the serial monitor and watch the values popping up on the screen. If you are not making any noise to the microphone, what is an average low value for peakM? Take that value, add 100, and set that as the `NOISE_PEAK` variable. The peakF variable tells you what the peak frequency it is detecting, we will look at this later! Upload that update to the ESP32 and see how it now responds to noise at the bottom (quiet) end. Repeat as necessary so that the lights mostly start to turn on when you deliberately make noise.
+4. At the top of the arduino file, we have set up a user configuration zone. The main variable of interest is `NOISE_PEAK`. This will be a different noise value compared to W1. This noise variable is so that we do not have the LEDs light up when we do not purposely play a sound. This effectively blocks out background noise.  If you are in a noisy location, increasing the `NOISE_PEAK` variable can help. You can guess and check... Or we can have the ESP32 print us the data values from the microphone to the Serial Monitor. (see next step!)
+
+5. Go to line ~127 and look for:
+``` 
+  // Serial.print(peakF, 2); // Frequency of Peak -> 2 is for 2 decimal points. 
+  // Serial.print(", ");
+  // Serial.println(peakM, 2); // Magnitude of Peak
+```
+5. Continued... Remove the `//` to uncomment these 3 lines. Re-upload the sketch to the ESP32. Go to the serial monitor and watch the values popping up on the screen. If you are not making any noise to the microphone, what is an average low value for peakM? Take that value, add ~100, and set that as the `NOISE_PEAK` variable. The peakF variable tells you what the peak frequency it is detecting, we will look at this later! Upload that update to the ESP32 and see how it now responds to noise at the bottom (quiet) end. Repeat as necessary so that the lights mostly start to turn on when you deliberately make noise.
 
 ## Testing Steps:
 
 The hard part is done and now the fun begins! We have the hardware working, and the code configured for our setup, now we want to put it to the test. We have a few audio files to test:
 
-1. We can start by playing the `middle C` file. A single note (created synthetically of course) will consist of a sine wave at a specific frequency. As we play this note, we should see a single bar light up. Test that you get different bars lighting up for `A_octave2.wav` and `G_octave5.wav`. 
+1. We can start by playing the `middle C` file. A single note (created synthetically of course) will consist of a sine wave at a specific frequency. As we play this note, we should see a single bar light up. Test that you get different bars lighting up for `A_octave2.wav` and `G_octave5.wav`. Check the serial montior to see what frequency is displayed, it will be the first number on each line printed. How does it compare to the chart above?
+
 2. In W1 the  `frequencySweep.wav` file scanned its way across the LED matrix. How do we expect that behaviour to change under this configuration? Test it to see if the results match your expectation! 
+
 3. The files tested above only played a single note at each point in time. What if we played multiple notes at once, as a typical instrument would? Included are the `GuitarC.wav` and `PianoC.wav` files that the Fourier transforms were plotted above. If they are both 'C' notes, they should both light up the same bar. Is that what you observe? 
 
