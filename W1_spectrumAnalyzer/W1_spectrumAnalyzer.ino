@@ -114,7 +114,7 @@ void loop() {
   FFT.ComplexToMagnitude();
  
     // debug mic noise
-   // Serial.println(vReal[5]); 
+  Serial.println(vReal[5]); 
 
   // Analyse FFT results
   for (int i = 2; i < (SAMPLES/2); i++){       // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.
