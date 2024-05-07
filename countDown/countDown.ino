@@ -10,6 +10,8 @@
 
 // Definitions
 #define MATRIXPIN           5   // LED strip data
+#define BUTTON_PIN          21 // GPIO21 pin connected to button
+#define BUZZER_PIN          18 // GPIO 18
 #define MATRIX_TILE_WIDTH   16 // width of EACH NEOPIXEL MATRIX (not total display)
 #define MATRIX_TILE_HEIGHT  16 // height of each matrix
 #define MATRIX_TILE_H       1  // number of matrices arranged horizontally
@@ -32,9 +34,7 @@
 #define GREEN 0x07E0
 #define WHITE 0xFFFF
 
-uint8_t matrix_brightness = 32;
-const int buttonPin = 2;
-//const int buzzer = 9; //buzzer to arduino pin 9
+uint8_t matrix_brightness = 22;
 
 CRGB matrixleds[NUMMATRIX];
 
@@ -45,6 +45,7 @@ FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(matrixleds, MATRIX_TILE_WIDTH,
 
 
 // Specific for text
+int startTens = 5;
 int digit1 = 5;                // Index of digits to start from in letters
 int digit2 = 9;   
 int size = 1; 
@@ -54,10 +55,14 @@ int cursY = 5;
 // Timing:
 unsigned long previousMillis = 0; 
 long interval = 1000;  
+int beepDur1 = 200; //milliseconds
+int beepDur2 = 320; //milliseconds
 
 char letters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'G', 'O' };
 char printLetters[]= {'5', '9', ' '};
 
+int lastState = HIGH; // Previous reading -> wired from digital to ground = low on push
+int buttonState;     // Current reading
 
 void setup() {
   delay(100);
@@ -70,8 +75,7 @@ void setup() {
   matrix->setFont(); // size 1 == 8 pixels high, 2 = 16 &FreeSans9pt7b 
   matrix->setTextSize(1);
 
-  pinMode(buttonPin, INPUT);
-  //pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
+  pinMode( BUTTON_PIN, INPUT_PULLUP); // config GPIO21 as input pin and enable the internal pull-up resistor
 }
 
 void loop() {
@@ -80,13 +84,15 @@ void loop() {
   //memset(matrixleds, 0, NUMMATRIX*3);
 
   // read the state of the pushbutton value:
-  buttonState = digitalRead(buttonPin);
+  buttonState = digitalRead( BUTTON_PIN );
+  Serial.println(buttonState);
 
-  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonState == HIGH) {
+  // check if the pushbutton is pressed. If it is, the buttonState is LOW:
+  if (buttonState == LOW && lastState == HIGH) {
     //Reset the counter
-    digit1 = 5;
+    digit1 = startTens;
     digit2 = 9;
+    lastState = HIGH;
   } 
 
   // To make sure it runs only every second
@@ -107,7 +113,7 @@ void loop() {
     matrix->print( printLetters );
 
     // Digit handling for next loop -> reset
-    digit1 = 5;
+    digit1 = startTens;
     digit2 = 9; 
 
   } else {
@@ -127,21 +133,23 @@ void loop() {
     }
   }
 
-  // // Tones on 3 2, 1, GO -> Note we have already decremented the counter above.
-  // if (digit1 == 5) & (digit2 < 9){
-  //   tone(buzzer, 1000); // Send 1KHz sound signal...
-  //   delay(500);        // ...for 0.5 sec
-  //   noTone(buzzer);     // Stop sound...
-  // }
-  // else if (digit1 == 0) & (digit2 < 3){
-  //   tone(buzzer, 400); // Send 1KHz sound signal...
-  //   delay(500);        // ...for 0.5 sec
-  //   noTone(buzzer);     // Stop sound...
-  // }
+  matrix->show();
+
+  // Tones on 3 2, 1, GO -> Note we have already decremented the counter above.
+  if (digit1 == startTens && digit2 == 9){
+    tone(BUZZER_PIN, 261); // middle C
+    delay(beepDur2);        // ...for 0.5 sec
+    noTone(BUZZER_PIN);     // Stop sound...
+  }
+  else if (digit1 == 0 && digit2 < 3){
+    tone(BUZZER_PIN, 131); // 2 octaves down
+    delay(beepDur1);        // ...for 0.5 sec
+    noTone(BUZZER_PIN);     // Stop sound...
+  }
 
 
   previousMillis = currentMillis; 
-  matrix->show();
+  
 
 }
 
