@@ -34,7 +34,7 @@
 #define GREEN 0x07E0
 #define WHITE 0xFFFF
 
-uint8_t matrix_brightness = 22;
+uint8_t matrix_brightness = 255;
 
 CRGB matrixleds[NUMMATRIX];
 
