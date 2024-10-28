@@ -70,7 +70,7 @@ Next press the Upload button. Once uploaded, open the 'Serial Monitor' which can
 ## Setup and Loop functions
 
 To convince ourselves that setup runs only once, put the first line in setup, and the second line in loop, and check the serial monitor. Leave the Serial.begin and delay lines from before. 
-```Serial.println("Sunning the setup function");```
+```Serial.println("Running the setup function");```
 
 ```Serial.println("Running the loop function");```
 

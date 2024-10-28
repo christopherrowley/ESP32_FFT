@@ -36,7 +36,8 @@ int bandValues[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 double vReal[SAMPLES];
 double vImag[SAMPLES];
 unsigned long newTime;
-arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
+arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ); // arduinoFFT 1.6.2
+//ArduinoFFT<float> FFT = ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);  // arduinoFFT 2.0.2 https://github.com/kosme/arduinoFFT/wiki WIP! Doesnt work currently
 
 // FastLED stuff
 CRGB leds[NUM_LEDS];
