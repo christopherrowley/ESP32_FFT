@@ -33,7 +33,7 @@ Arduino has several primary data types to work with:
 
 1. Integer (int): Used for whole numbers. Range: -32,768 to 32,767.
 
-2. Unsigned Integer (unsigned int): Similar to int but only for non-negative numbers. Range: 0 to 65,535.
+2. Unsigned Integer (unsigned int, u_int): Similar to int but only for non-negative numbers. Range: 0 to 65,535.
 
 3. Long (long): For larger whole numbers. Range: -2,147,483,648 to 2,147,483,647.
 
@@ -311,10 +311,79 @@ delay(scrollSpeed);
 
 
 ## Snake of increasing length
-We can start a snake with a single pixel that then moves through the matrix. After completing, it could start over with a length of 1 pixel longer. 
+We can start a snake with a single pixel that then moves through the matrix. After completing, it could start over with a length of 1 pixel longer. We have the same hardware as the previous example, so we will keep the same variable defines section, except we will drop the colour options. We need to make two arrays, to keep track of the x and y coordinates of the snake, and the length of the snake.
+```
+int xPixLoc[NUMMATRIX];
+int yPixLoc[NUMMATRIX];
+int snakeLength = 1;
+```
+ We don't need all the setup code since we aren't using text, so insert the following in the setup() function:
+```
+Serial.begin(115200);
+FastLED.addLeds<CHIPSET, MATRIXPIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalLEDStrip);
+matrix->begin();
+matrix->setBrightness(matrix_brightness);
+```
+We are going to draw things pixel by pixel. If you want to change the colour, this is where you do it in RGB format:
+
+`matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7));`
+
+So to draw the snake, we need to loop over the snake length.
+```
+for (int i = 0; i < snakeLength; i++) {
+  matrix.drawPixel( xPixLoc[i], yPixLoc[i], matrix.Color333(7, 7, 7));
+}
+matrix.show();
+delay(scrollSpeed); // You may want to make this shorter
+```
+
+We need to do a couple things still. First we need to update the x and y locations for the next loop. And we need to increase the length of the snake when the end of the snake reaches the end of the matrix. The LEDs are connected in a serpentine pattern. So odd rows will increment x, and even rows will decrease y. If they are already at the end of the row, then we need to increment y. If it reaches the very end of the matrix, then we need to bring it back to the start. Remember that this coding language uses 0 indexing (we start at 0 and not at 1).
 
 
+```
+for (int i = 0; i < snakeLength; i++) {
+  int curX = xPixLoc[i];
+  int curY = yPixLoc[i];
 
+  // Easiest for conditional statement to start with end
+  // End case is that the 
+  if (curX == MATRIX_TILE_WIDTH-1 && curY == MATRIX_TILE_HEIGHT-1) {
 
+    // very end of the snake hits the last pixel, increment length
+    if (i == snakeLength-1){
+      snakeLength++;
+    }
+    // If any pixel is at the end currently, the next spot is at the start. 
+    xPixLoc[i] = 0;
+    yPixLoc[i] = 0;
 
+    continue; // Skip rest of for loop for this pixel
+  } 
+
+  // If row is odd, increment:
+  if (i % 2 == 1) {
+    if (curX < MATRIX_TILE_WIDTH-1) {
+      xPixLoc[i] +=1; // increment by 1, y stays same
+      continue; // go to next part of snake
+
+    } else { // we are at end of row
+      yPixLoc[i] +=1; // increment by 1, x stays same
+      continue; // go to next part of snake
+    }
+
+  } else { // row is even
+      if (curX > 1) {
+      xPixLoc[i] -=1; // decrement by 1, y stays same
+      continue; // go to next part of snake
+
+    } else { // we are at end of row
+      yPixLoc[i] +=1; // increment by 1, x stays same
+      continue; // go to next part of snake
+    }
+
+  }
+}
+```
+
+I will leave it up to you to determin how to reset the snake length once it fills the matrix!
 

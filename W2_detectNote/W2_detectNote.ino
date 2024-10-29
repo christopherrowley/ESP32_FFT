@@ -18,8 +18,10 @@
 // End User Configuration zone //
 
 #define LED_PIN         5             // LED strip data
-#define SAMPLES         4096          // Must be a power of 2
-#define SAMPLING_FREQ   8192         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+// #define SAMPLES         4096          // Must be a power of 2
+// #define SAMPLING_FREQ   8192         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+const uint16_t  SAMPLES = 1024; // arduinoFFT 2.0.2
+const float SAMPLING_FREQ = 8192;
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
@@ -41,12 +43,18 @@ int bar2Height = 0;                                       // store height of sec
 int bar1Height = 0;                                       // store height of first note
 byte bar1Loc = 0;                                         // bin location of primary note
 byte bar2Loc = 0;                                         // bin location of secondary note
-double vReal[SAMPLES];
-double vImag[SAMPLES];
-double peakF = 0.0;   // FFT peak frequency.
-double peakM = 0.0;  // FFT peak magnitude
 unsigned long newTime;
-arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
+//double vReal[SAMPLES]; // arduinoFFT 1.6.2
+//double vImag[SAMPLES];
+//double peakF = 0.0;   // FFT peak frequency.
+//double peakM = 0.0;  // FFT peak magnitude
+float vReal[SAMPLES]; // arduinoFFT 2.0.2
+float vImag[SAMPLES]; // arduinoFFT 2.0.2
+float peakF = 0.0;   // FFT peak frequency.
+float peakM = 0.0;  // FFT peak magnitude
+// arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
+ArduinoFFT<float> FFT = ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);  // arduinoFFT 2.0.2 https://github.com/kosme/arduinoFFT/wiki WIP! Doesnt work currently
+
 int centerShift = 2;  // Number of columns to shift bars over
 
 // FastLED stuff
@@ -115,15 +123,19 @@ void loop() {
     while ((micros() - newTime) < sampling_period_us) { /* chill */ }
   }
 
-  // Compute FFT
-  FFT.DCRemoval(); // Remove DC offset
-  FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT - should help with aliasing too.
-  FFT.Compute(FFT_FORWARD);
-  FFT.ComplexToMagnitude();
+  // Compute FFT - arduinofft 1.6.2
+  //FFT.DCRemoval(); // Remove DC offset
+  // FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT - should help with aliasing too.
+  // FFT.Compute(FFT_FORWARD);
+  // FFT.ComplexToMagnitude();
+  FFT.dcRemoval(); // Remove DC offset
+  FFT.windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
+  FFT.compute(FFT_FORWARD);
+  FFT.complexToMagnitude();
 
   // C.R. we can extract the major peak using a built in function:
-  FFT.MajorPeak( &peakF, &peakM);
-
+  //FFT.MajorPeak( &peakF, &peakM);
+  FFT.majorPeak( &peakF, &peakM); // arduinoFFT 2.0.2
   // Serial.print(peakF, 2); // Frequency of Peak -> 2 is for 2 decimal points. 
   // Serial.print(", ");
   // Serial.println(peakM, 2); // Magnitude of Peak

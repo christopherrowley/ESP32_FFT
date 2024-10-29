@@ -12,8 +12,10 @@
 // ***************************************************
 
 #define LED_PIN         5             // LED strip data
-#define SAMPLES         1024          // Must be a power of 2
-#define SAMPLING_FREQ   40000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+//#define SAMPLES         1024          // Must be a power of 2
+//#define SAMPLING_FREQ   40000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+const uint16_t  SAMPLES = 1024; // arduinoFFT 2.0.2
+const float SAMPLING_FREQ = 40000;
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
@@ -33,11 +35,13 @@ unsigned int sampling_period_us;
 byte peak[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};              // The length of these arrays must be >= NUM_BANDS
 int oldBarHeights[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int bandValues[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-double vReal[SAMPLES];
-double vImag[SAMPLES];
+//double vReal[SAMPLES];
+// double vImag[SAMPLES];
+float vReal[SAMPLES]; // arduinoFFT 2.0.2
+float vImag[SAMPLES]; // arduinoFFT 2.0.2
 unsigned long newTime;
-arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ); // arduinoFFT 1.6.2
-//ArduinoFFT<float> FFT = ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);  // arduinoFFT 2.0.2 https://github.com/kosme/arduinoFFT/wiki WIP! Doesnt work currently
+//arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ); // arduinoFFT 1.6.2
+ArduinoFFT<float> FFT = ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);  // arduinoFFT 2.0.2 https://github.com/kosme/arduinoFFT/wiki WIP! Doesnt work currently
 
 // FastLED stuff
 CRGB leds[NUM_LEDS];
@@ -108,11 +112,16 @@ void loop() {
     while ((micros() - newTime) < sampling_period_us) { /* chill */ }
   }
 
-  // Compute FFT
-  FFT.DCRemoval(); // Remove DC offset
-  FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
-  FFT.Compute(FFT_FORWARD);
-  FFT.ComplexToMagnitude();
+  // Compute FFT - arduinofft 1.6.2
+  //FFT.DCRemoval(); // Remove DC offset
+  //FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
+  // FFT.Compute(FFT_FORWARD);
+  // FFT.ComplexToMagnitude();
+  // Compute FFT - arduinofft 2.0.2
+  FFT.dcRemoval(); // Remove DC offset
+  FFT.windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
+  FFT.compute(FFT_FORWARD);
+  FFT.complexToMagnitude();
  
     // debug mic noise
   Serial.println(vReal[5]); 
