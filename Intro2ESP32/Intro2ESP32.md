@@ -65,11 +65,12 @@ We will also add a delay. The delay(time) function pauses the code for the amoun
 
 Next press the Upload button. Once uploaded, open the 'Serial Monitor' which can be found in the Tools drop down menu. You should see "Hello World!" appear in the serial monitor, every 3 seconds.
 
-** If the serial monitor isn't printing properly, check the Baud rate in the Tools drop down and make sure it matches the value chosen for the serial monitor.
+** If the serial monitor isn't printing properly, check the Baud rate at the top right of the Serial Monitor, and make sure it matches the value set in the setup() function.
 
 ## Setup and Loop functions
 
 To convince ourselves that setup runs only once, put the first line in setup, and the second line in loop, and check the serial monitor. Leave the Serial.begin and delay lines from before. 
+
 ```Serial.println("Running the setup function");```
 
 ```Serial.println("Running the loop function");```
@@ -93,9 +94,13 @@ Insert the delay code from before so that the serial monitor doesn't print value
 
 ## ESP32 LED Blink
 The ESP32 dev board has a LED built in. To use it, we need to 'define' it at the beginning of the code:
-```#define LED 2```
+
+`#define LED 2`
+
 Then in the setup() function, include this:
-```pinMode(LED,OUTPUT);```
+
+`pinMode(LED,OUTPUT);`
+
 This tells the board that it is connected to interface pin 2, and that this pin is used to output (not take data in, like a microphone might). We can then make the LED blink by putting the following in the loop() function:
 
 ```
@@ -112,29 +117,31 @@ Conditional statements are very common in programming. This tells the computer t
 
 ```
 for (int i = 0; i < 5; i++) {
-  digitalWrite(LED_BUILTIN, HIGH);  // Turn the LED on
+  digitalWrite(LED, HIGH);  // Turn the LED on
   delay(500);                       // Wait for half a second
-  digitalWrite(LED_BUILTIN, LOW);   // Turn the LED off
-  delay(500);
+  digitalWrite(LED, LOW);   // Turn the LED off
+  delay(200);
 }
 delay (1000);
 ```                      
 
 ## If and Else loops
-These are other conditional statements that cause code to be executed when certain conditions are met. Let's modify the above example so that the 5th blink is 1 second long and the others are still half a second:
+These are other conditional statements that cause code to be executed when certain conditions are met. Let's modify the above example so that the 5th blink is 2 seconds long and the others are still half a second:
 ```
 for (int i = 0; i < 5; i++) {
-  digitalWrite(LED_BUILTIN, HIGH);  // Turn the LED on
- if ( i == 5) { // Only on the 5th blink
-   delay(1000); // Wait for a full second
+  digitalWrite(LED, HIGH);  // Turn the LED on
+ if ( i == 4) { // Only on the 5th blink
+   delay(2000); // Wait for a full second
  } else { // for all other blinks
    delay(500); // Wait for half a second
  }                    
-  digitalWrite(LED_BUILTIN, LOW);   // Turn the LED off
-  delay(500);
+  digitalWrite(LED, LOW);   // Turn the LED off
+  delay(200);
 }
 delay (1000);
 ```
+
+Note that arduino programming uses 0 indexing. This means we start counting at 0 and not at 1. That makes the 5th light to be count 4 (0, 1, 2, 3, 4).
 
 #################################################################################
 # LED Matrix
@@ -171,8 +178,8 @@ With this working knowledge, we can connect parts with jumper cables by plugging
 These are needed to help us control the LED with less effort, and for later on in the workship.
 From the Arduino library manager, you will need:
     - FastLED Neomatrix (by Marc Merlin v1.1.0)
-    - arduinoFFT library (by Enrique Condes v1.6.2)
-    - Adafruit_GFX // graphics support for matrix
+    - arduinoFFT library (by Enrique Condes v2.0.2)
+    - Adafruit_GFX // graphics support for matrix (v1.11.11)
     
     - To load the Arduino FFT (or other) library:
 
@@ -180,42 +187,97 @@ From the Arduino library manager, you will need:
                 The correct version is https://github.com/kosme/arduinoFFT
 
 ### To add FastLED matrix option:
-FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, kMatrixWidth, kMatrixHeight,
-  NEO_MATRIX_TOP        + NEO_MATRIX_LEFT +
-  NEO_MATRIX_ROWS       + NEO_MATRIX_ZIGZAG +
-  NEO_TILE_TOP + NEO_TILE_LEFT + NEO_TILE_ROWS);
+Add the following code BEFORE the setup() function:
 
+```
+#include <Adafruit_GFX.h> // New for this one -> graphics support
+#include <FastLED_NeoMatrix.h>
+#include <FastLED.h>
+
+#define LED_PIN 5
+const uint8_t kMatrixWidth = 16;                          // Matrix width
+const uint8_t kMatrixHeight = 16;                         // Matrix height
+#define NUM_LEDS       (kMatrixWidth * kMatrixHeight)     // Total number of LEDs
+#define CHIPSET         WS2812B                           // LED strip type
+#define COLOR_ORDER     GRB                               // If colours look wrong, play with this
+#define MATRIX_TILE_H       1  // number of matrices arranged horizontally
+#define MATRIX_TILE_V       1  // number of matrices arranged vertically
+uint8_t matrix_brightness = 50;
+
+CRGB leds[NUM_LEDS];
+
+FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, kMatrixWidth, kMatrixHeight, MATRIX_TILE_H, MATRIX_TILE_V, 
+  NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +
+    NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG + 
+    NEO_TILE_TOP + NEO_TILE_LEFT +  NEO_TILE_PROGRESSIVE);
+
+/* some RGB color definitions in unint16_t                                                */
+#define Black           0x0000      /*   0,   0,   0 */
+#define Navy            0x000F      /*   0,   0, 128 */
+#define DarkGreen       0x03E0      /*   0, 128,   0 */
+#define DarkCyan        0x03EF      /*   0, 128, 128 */
+#define Maroon          0x7800      /* 128,   0,   0 */
+#define Purple          0x780F      /* 128,   0, 128 */
+#define Olive           0x7BE0      /* 128, 128,   0 */
+#define LightGrey       0xC618      /* 192, 192, 192 */
+#define DarkGrey        0x7BEF      /* 128, 128, 128 */
+#define Blue            0x001F      /*   0,   0, 255 */
+#define Green           0x07E0      /*   0, 255,   0 */
+#define Cyan            0x07FF      /*   0, 255, 255 */
+#define Red             0xF800      /* 255,   0,   0 */
+#define Magenta         0xF81F      /* 255,   0, 255 */
+#define Yellow          0xFFE0      /* 255, 255,   0 */
+#define White           0xFFFF      /* 255, 255, 255 */
+#define Orange          0xFD20      /* 255, 165,   0 */
+#define GreenYellow     0xAFE5      /* 173, 255,  47 */
+#define Pink            0xF81F
+```
+
+Then in the setup() function, we will switch to a higher baud rate for later on. We also need to define some settings for the LEDs. Include the following code:
+
+```
+  Serial.begin(115200);
+  FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  matrix->begin();
+  matrix->setBrightness(matrix_brightness);
+```
 
 ## LED Matrix Basics:
-Draw a pixel in solid white
+The bottom of your loop() function needs to have the following code, which tells the matrix to update:
 
-`matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7));`
+`matrix->show();`
 
-Fill the screen with green
+Draw a pixel in solid white. This function can take in RGB
 
-`matrix.fillRect(0, 0, 32, 16, matrix.Color333(0, 7, 0));`
+`matrix->drawPixel(0, 0, CRGB( 150, 150, 150) );`
+
+Fill the screen with green. This function needs to use the binarized colors
+
+`matrix->fillRect(0, 0, kMatrixWidth, kMatrixHeight,  Green );`
 
 Draw a box in yellow
 
-`matrix.drawRect(0, 0, 32, 16, matrix.Color333(7, 7, 0));`
+`matrix->drawRect(0, 0, kMatrixWidth, kMatrixHeight,  Yellow );`
 
 Draw an 'X' in red
 ```
-matrix.drawLine(0, 0, 31, 15, matrix.Color333(7, 0, 0));
-matrix.drawLine(31, 0, 0, 15, matrix.Color333(7, 0, 0));
+matrix->drawLine(0, 0, kMatrixWidth, kMatrixHeight, Red);
+matrix->drawLine(kMatrixWidth-1, 0, 0, kMatrixHeight-1, Red);
 ```
+
+Fill a maroon circle
+
+`matrix->fillCircle(2, 7, 2, Maroon);`
+
 Draw a blue circle
 
-`matrix.drawCircle(7, 7, 7, matrix.Color333(0, 0, 7));`
-
-Fill a violet circle
-
-`matrix.fillCircle(23, 7, 7, matrix.Color333(7, 0, 7));`
+`matrix->drawCircle(8, 7, 7, Blue);`
 
 Fill the screen with 'black'
 
-`matrix.fillScreen(matrix.Color333(0, 0, 0));`
+`matrix->fillScreen(Black);`
 
+You could combine the above to draw images, like a snowman! Or use loops to display different things at different time points. You could also use an online tool (such as:https://tools.withcode.uk/bitmap/) to convert an image into bitmap code, and then draw each of the pixels.
 
 ## Writing on the screen:
 There is a matrix print option which is similar to serial print.  But we first need to set where our cursor will be. 
