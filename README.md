@@ -46,7 +46,7 @@ With this working knowledge, we can connect parts with jumper cables by plugging
 
 3. From the Arduino library manager, you will need:
     - FastLED Neomatrix (by Marc Merlin v1.1.0)
-    - arduinoFFT library (by Enrique Condes v1.6.2)
+    - arduinoFFT library (by Enrique Condes v2.0.2)
     
     - To load the Arduino FFT (or other) library:
 

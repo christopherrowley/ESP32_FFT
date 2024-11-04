@@ -5,17 +5,17 @@
 
 // ***************************************************
 // User Configuration zone! //
-#define NOISE           50           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
-#define AMPLITUDE       500          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
+#define NOISE           150           // Used as a crude noise filter, values below this are ignored was 500 for MAX4466
+#define AMPLITUDE       1000          // Depending on your audio source level, you may need to alter this value. Can be used as a 'sensitivity' control.
 
 // End User Configuration zone //
 // ***************************************************
 
 #define LED_PIN         5             // LED strip data
 //#define SAMPLES         1024          // Must be a power of 2
-//#define SAMPLING_FREQ   40000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
+//#define SAMPLING_FREQ   30000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
 const uint16_t  SAMPLES = 1024; // arduinoFFT 2.0.2
-const float SAMPLING_FREQ = 40000;
+const float SAMPLING_FREQ = 15000;
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
@@ -36,7 +36,7 @@ byte peak[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};              // The length of t
 int oldBarHeights[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int bandValues[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 //double vReal[SAMPLES];
-// double vImag[SAMPLES];
+//double vImag[SAMPLES];
 float vReal[SAMPLES]; // arduinoFFT 2.0.2
 float vImag[SAMPLES]; // arduinoFFT 2.0.2
 unsigned long newTime;
@@ -112,19 +112,19 @@ void loop() {
     while ((micros() - newTime) < sampling_period_us) { /* chill */ }
   }
 
-  // Compute FFT - arduinofft 1.6.2
-  //FFT.DCRemoval(); // Remove DC offset
-  //FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
+  // // Compute FFT - arduinofft 1.6.2
+  // FFT.DCRemoval(); // Remove DC offset
+  // FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
   // FFT.Compute(FFT_FORWARD);
   // FFT.ComplexToMagnitude();
   // Compute FFT - arduinofft 2.0.2
   FFT.dcRemoval(); // Remove DC offset
-  FFT.windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
-  FFT.compute(FFT_FORWARD);
+  FFT.windowing(FFTWindow::Hamming, FFTDirection::Forward); // Window to remove truncation effects in FFT
+  FFT.compute(FFTDirection::Forward);
   FFT.complexToMagnitude();
  
     // debug mic noise
-  Serial.println(vReal[5]); 
+ // Serial.println(vReal[5]); 
 
   // Analyse FFT results
   for (int i = 2; i < (SAMPLES/2); i++){       // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.

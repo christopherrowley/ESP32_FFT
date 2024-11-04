@@ -10,13 +10,13 @@ Here we will get an understanding of Arduino programming, the FastLED programmin
 ## Setup Arduino IDE for ESP32 
 If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.
 
-    1. Go to `File->Preferences->Additional Board Manager URLs`
-    2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-    3. click "Ok" to close out of preferences. It should begin to add something.
-    4. Go to `Tools->Board->Board Manager`
-    5. A panel should pop up, and search "ESP32"
-    6. Download the version by Espressif Systems (version 2.0.14 works)
-    7. Now to set the board, go to `Tools->Board->esp32->"ESP32 Dev Module"`
+1. Go to `File->Preferences->Additional Board Manager URLs`
+2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+3. click "Ok" to close out of preferences. It should begin to add something.
+4. Go to `Tools->Board->Board Manager`
+5. A panel should pop up, and search "ESP32"
+6. Download the version by Espressif Systems (version 2.0.14 works)
+7. Now to set the board, go to `Tools->Board->esp32->"ESP32 Dev Module"`
 
 If your computer is not recognizing the ESP32 as being connected, you may also need the ESP32 driver: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers (install instructions in the Release Notes text file of the download). Another possible source of this error is that the wrong "COM" port is selected from the Tools dropdown menu. 
 
@@ -32,21 +32,13 @@ Arduino code needs to be broken up into 3 main blocks. You will see this structu
 Arduino has several primary data types to work with:
 
 1. Integer (int): Used for whole numbers. Range: -32,768 to 32,767.
-
 2. Unsigned Integer (unsigned int, u_int): Similar to int but only for non-negative numbers. Range: 0 to 65,535.
-
 3. Long (long): For larger whole numbers. Range: -2,147,483,648 to 2,147,483,647.
-
 4. Unsigned Long (unsigned long): Same as long but only positive. Range: 0 to 4,294,967,295.
-
 5. Float (float): For floating-point numbers (decimals). Precision: 6-7 decimal digits.
-
 6. Double (double): It's essentially the same as float on most Arduino boards, not offering double-precision.
-
 7. Byte (byte): Stores an 8-bit unsigned number, 0 to 255.
-
 8. Char (char): Stores a single character. A 'string' is made up of multiple characters.
-
 9. Boolean (bool): Represents true or false.
 
 ## Hello World
@@ -177,14 +169,14 @@ With this working knowledge, we can connect parts with jumper cables by plugging
 ## Download packages
 These are needed to help us control the LED with less effort, and for later on in the workship.
 From the Arduino library manager, you will need:
-    - FastLED Neomatrix (by Marc Merlin v1.1.0)
-    - arduinoFFT library (by Enrique Condes v2.0.2)
-    - Adafruit_GFX // graphics support for matrix (v1.11.11)
-    
-    - To load the Arduino FFT (or other) library:
 
-        - In the IDE menu, select `Sketch->Include Library-> Manage Libraries->search for 'FFT'` 
-                The correct version is https://github.com/kosme/arduinoFFT
+  - FastLED Neomatrix (by Marc Merlin v1.1.0)
+  - arduinoFFT library (by Enrique Condes v2.0.2)
+  - Adafruit_GFX // graphics support for matrix (v1.11.11)
+  
+  - To load the Arduino FFT (or other) library:
+      - In the IDE menu, select `Sketch->Include Library-> Manage Libraries->search for 'FFT'` 
+              The correct version is https://github.com/kosme/arduinoFFT
 
 ### To add FastLED matrix option:
 Add the following code BEFORE the setup() function:
@@ -406,7 +398,7 @@ Lets start by just going across in x, then if we hit the end of x we reset x and
     uint8_t curY = yPixLoc[i];
 
     if (curX < kMatrixWidth-1) {
-        xPixLoc[i] +=1; // decrement by 1, y stays same
+        xPixLoc[i] +=1; // increase by 1, y stays same
 
       } else { // we are at end of row
         yPixLoc[i] +=1; // increment by 1
@@ -434,53 +426,50 @@ Next, lets increase the length of the snake when we finish a loop. We have an 'i
     }
 ```
 
-To get the 'snake' effect, we need to move opposite ways along x for even and odd rows. Remember that this coding language uses 0 indexing (we start at 0 and not at 1).
+To get the 'snake' effect, we need to move opposite ways along x for even and odd rows. To separate even and odd rows, we can use the modulus '%' function, which gives us the remainder after a division. If we divide any number by 2, the remainder will be 0 for even numbers, or 1 for odd. The odd rows we will want to decrease x. 
 
 
 ```
-for (int i = 0; i < snakeLength; i++) {
-  int curX = xPixLoc[i];
-  int curY = yPixLoc[i];
+ for (uint8_t i = 0; i < snakeLength; i++) {
 
-  // Easiest for conditional statement to start with end
-  // End case is that the 
-  if (curX == MATRIX_TILE_WIDTH-1 && curY == MATRIX_TILE_HEIGHT-1) {
+      // Get the pixel location for this part of snake
+      uint8_t curX = xPixLoc[i];
+      uint8_t curY = yPixLoc[i];
 
-    // very end of the snake hits the last pixel, increment length
-    if (i == snakeLength-1){
-      snakeLength++;
-    }
-    // If any pixel is at the end currently, the next spot is at the start. 
-    xPixLoc[i] = 0;
-    yPixLoc[i] = 0;
+      // Find out if even or odd row- 
+      //our code mostly works for even, except we don't reset x at the end!
+      if (curY % 2 == 0) {
 
-    continue; // Skip rest of for loop for this pixel
-  } 
+        if (curX < kMatrixWidth-1) {
+          xPixLoc[i] +=1; // increase by 1, y stays same
 
-  // If row is odd, increment:
-  if (i % 2 == 1) {
-    if (curX < MATRIX_TILE_WIDTH-1) {
-      xPixLoc[i] +=1; // increment by 1, y stays same
-      continue; // go to next part of snake
+        } else { // we are at end of row
+          yPixLoc[i] +=1; // increment by 1
+        }
+      } else { // for odd rows move the opposite way:
 
-    } else { // we are at end of row
-      yPixLoc[i] +=1; // increment by 1, x stays same
-      continue; // go to next part of snake
-    }
+        if (curX > 0) {
+          xPixLoc[i] -=1; // decrement by 1, y stays same
 
-  } else { // row is even
-      if (curX > 1) {
-      xPixLoc[i] -=1; // decrement by 1, y stays same
-      continue; // go to next part of snake
+        } else { // we are at end of row
+          yPixLoc[i] +=1; // increment by 1
+        }  
+      }
 
-    } else { // we are at end of row
-      yPixLoc[i] +=1; // increment by 1, x stays same
-      continue; // go to next part of snake
-    }
+      // Our condition for reaching the end stays the same. 
+      if(curX == 0 && curY == kMatrixHeight) {
+        yPixLoc[i] = 0;
+        xPixLoc[i] = 0;
+        if (i == snakeLength-1){
+          snakeLength++;
+        }
 
-  }
-}
+      } // end of at end of matrix check
+
+    } // end for snake length
 ```
 
-I will leave it up to you to determin how to reset the snake length once it fills the matrix!
+I will leave it up to you to determine how to reset the snake length once it fills the matrix! The use of delay here is not ideal, as it means the update rate is not independent of the length of the snake. As the snake gets longer, the number of extra calculations that it needs to do to update the length increases, taking more time. This effectively slows the snake as it gets bigger. For this exercise it is fine, but if you are interested in looking into how to have more consistent timing, look at ExampleApps/countDown.ino
+
+Hopefully from this exercise you can see the challenges in coding. We take something that seems simplistic from an explaination point of view "just make a snake zig-zag across a screen", and have to break it down into all of its sub-components. 
 
