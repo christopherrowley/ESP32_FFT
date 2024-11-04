@@ -31,7 +31,10 @@ With this working knowledge, we can connect parts with jumper cables by plugging
 ![Circuit for using a microphone](images/esp32Circuit.png)
 
 ## Installation and code usage
-1. Download this repository and open W1_spectrumAnalyzer.ino.
+
+### Note - if downloading and updating is seemingly very slow, unplugging the ESP32 from the computer can sometimes move things faster.
+
+1. Download this repository and open W0_Intro2ESP32.pdf.
 2. If this is your first time connecting an ESP32 board, you need to add it to your ArduinoIDE.
     1. Go to `File->Preferences->Additional Board Manager URLs`
     2. Enter in: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
@@ -62,6 +65,7 @@ If you try to upload and it cannot find a connection, you may need to hold down 
 Each workshop is contained within its own folder. There is a markdown (or PDF) file within the folder that contains the instructions for that workshop. You can render a markdown file in Visual Studio code by using (Ctrl+K then V).
 
 The workshops are meant to be done in the following order, as time permits:
+1. W0_Intro2ESP32
 1. W1_spectrumAnalyzer
 2. W2_detectNote
 

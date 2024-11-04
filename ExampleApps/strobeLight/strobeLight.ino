@@ -4,7 +4,7 @@
 
 
 /* initialize Hardware Variables */
-#define LED_PIN           4 // Where LED strip is connected to board
+#define LED_PIN           5 // Where LED strip is connected to board
 #define NUM_LEDS         256
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type

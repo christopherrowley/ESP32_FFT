@@ -192,7 +192,7 @@ Add the following code BEFORE the setup() function:
 ```
 #include <Adafruit_GFX.h> // New for this one -> graphics support
 #include <FastLED_NeoMatrix.h>
-#include <FastLED.h>
+
 
 #define LED_PIN 5
 const uint8_t kMatrixWidth = 16;                          // Matrix width
@@ -277,129 +277,164 @@ Fill the screen with 'black'
 
 `matrix->fillScreen(Black);`
 
-You could combine the above to draw images, like a snowman! Or use loops to display different things at different time points. You could also use an online tool (such as:https://tools.withcode.uk/bitmap/) to convert an image into bitmap code, and then draw each of the pixels.
+You could combine the above to draw images, like a happy face! Or use loops to display different things at different time points. You could also use an online tool (such as:https://tools.withcode.uk/bitmap/) to convert an image into bitmap code, and then draw each of the pixels.
 
 ## Writing on the screen:
-There is a matrix print option which is similar to serial print.  But we first need to set where our cursor will be. 
+There is a matrix print option which is similar to serial print.  But we first need to set where our cursor will be. The following will go in our loop() function:
 ```
 // draw some text!
-  matrix.setCursor(1, 0);   // start at top left, with one pixel of spacing
-  matrix.setTextSize(1);    // size 1 == 8 pixels high
+  matrix->setCursor(1, 0);   // start at top left, with one pixel of spacing
+  matrix->setTextSize(1);    // size 1 == 8 pixels high
  
-  // print each letter with a rainbow color
-  matrix.setTextColor(matrix.Color333(7,0,0));
-  matrix.print('1');
-  matrix.setTextColor(matrix.Color333(7,4,0)); 
-  matrix.print('6');
-  matrix.setTextColor(matrix.Color333(7,7,0));
-  matrix.print('x');
-  matrix.setTextColor(matrix.Color333(4,7,0)); 
-  matrix.print('3');
-  matrix.setTextColor(matrix.Color333(0,7,0));  
-  matrix.print('2');
+  // print each letter in alternating green and orange
+  matrix->setTextColor(Green);
+  matrix->print('E');
+  matrix->setTextColor(Orange); 
+  matrix->print('S');
+  matrix->setTextColor(Green);
+  matrix->print('P');
+  matrix->setTextColor(Orange); 
+  matrix->print('3');
+  matrix->setTextColor(Green);  
+  matrix->print('2');
  
-  matrix.setCursor(1, 9);   // next line
-  matrix.setTextColor(matrix.Color333(0,7,7)); 
-  matrix.print('*');
-  matrix.setTextColor(matrix.Color333(0,4,7)); 
-  matrix.print('R');
-  matrix.setTextColor(matrix.Color333(0,0,7));
-  matrix.print('G');
-  matrix.setTextColor(matrix.Color333(4,0,7)); 
-  matrix.print("B");
-  matrix.setTextColor(matrix.Color333(7,0,4)); 
-  matrix.print("*");
 ```
+
+You should see that the print function automatically moves the text to the next available space on the matrix. If we don't turn off text wrapping, then it automatically prints to the next line. You can see this effect by adding the following to your setup() function:
+`matrix->setTextWrap(false);`
+
+It does not really make sense to loop over a print call. So you might want to add some animation, or put in a delay, or move this to the setup() function. 
 
 ## Scrolling Text
 We can achieve scrolling text by using the above combined with a 'for' loop to navigate across. We will need to set a scroll speed which effectively acts as a delay:
 
-`int scrollSpeed 150 // milliseconds`
+`int scrollSpeed = 150; // milliseconds`
 
 Let's also set the message we want as a string"
-`char LEDmessage[] = { 'H','e','l','l','o' };  // we have to enter the word as individual characters!`  
+
+`char LEDmessage[] = "Hello!";  `
 
 We need some other definitions related to the hardware:
 ```
-#define MATRIXPIN           5   // LED strip data
-#define MATRIX_TILE_WIDTH   16 // width of EACH NEOPIXEL MATRIX (not total display)
-#define MATRIX_TILE_HEIGHT  16 // height of each matrix
-#define NUMMATRIX (MATRIX_TILE_WIDTH*MATRIX_TILE_HEIGHT)
-#define COLOR_ORDER     GRB           // If colours look wrong, play with this
-#define CHIPSET         WS2812B       // LED strip type
-CRGB matrixleds[NUMMATRIX];
-uint8_t matrix_brightness = 255;
-int x    = matrix.width(); // Value to keep track of cursor position
-int y    = 5; // Helps to center text 
-int stringPixLength = LEDmessage.length() * 8 // Assumes each letter may be ~ 8 pixels wide with a space
+// This is the same as above
+#define LED_PIN 5
+const uint8_t kMatrixWidth = 16;                          // Matrix width
+const uint8_t kMatrixHeight = 16;                         // Matrix height
+#define NUM_LEDS       (kMatrixWidth * kMatrixHeight)     // Total number of LEDs
+#define CHIPSET         WS2812B                           // LED strip type
+#define COLOR_ORDER     GRB                               // If colours look wrong, play with this
+#define MATRIX_TILE_H       1  // number of matrices arranged horizontally
+#define MATRIX_TILE_V       1  // number of matrices arranged vertically
+uint8_t matrix_brightness = 50;
 
-// Color definitions - you can pick the one you like most! I will continue with WHITE in setup()
+// This is new:
+int x    = kMatrixWidth; // Value to keep track of cursor position
+int y    = 5; // Helps to center text 
+int stringPixLength = strlen(LEDmessage) * 7; // Assumes each letter may be ~ 8 pixels wide with a space
+
+// Color definitions - you can pick the one you like most! I will continue with WHITE in setup(), Or include all of the colours from before. 
 #define BLACK 0x0000
 #define BLUE 0x001F
 #define RED 0xF800
-#define CYAN 0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW 0xFFE0
-#define GREEN 0x07E0
 #define WHITE 0xFFFF
 ```
 
 
-We need to set up the LED matrix. So in the setup() function include the following:
+We need to set up the LED matrix. Here we will add force no wrapping of text for our scrolling animation. So in the setup() function include the following:
 ```
-Serial.begin(115200);
-FastLED.addLeds<CHIPSET, MATRIXPIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalLEDStrip);
-matrix->begin();
-matrix->setBrightness(matrix_brightness);
-matrix->setTextWrap(false);
-matrix->setFont(); // size 1 == 8 pixels high, 2 = 16 &FreeSans9pt7b 
-matrix->setTextSize(1);
-matrix->setTextColor( WHITE ); 
+  Serial.begin(115200);
+  FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  matrix->begin();
+  matrix->setBrightness(matrix_brightness);
+  matrix->setTextWrap(false); 
+  matrix->setTextSize(1);
+  matrix->setTextColor( WHITE ); 
 ```
 
 The magic happens in the loop() function. It is best to start by clearing the matrix. We will make the text scroll by continually modifying x. 
 ```
-FastLED.clear();
-matrix.setCursor(x, y);
-matrix.print( LEDmessage );
-x-- // Decrease x by 1 for next loop to move text to left
-if(x < -stringPixLength) {
-  x = 0; // reset word.
-} 
-matrix.show();
-delay(scrollSpeed);
+  FastLED.clear(); // erase text from last loop. 
+  matrix->setCursor(x, y);
+  matrix->print( LEDmessage );
+
+  x--; // Decrease x by 1 for next loop to move text to left
+  if(x < -stringPixLength) {
+    x = kMatrixWidth; // reset word
+  } 
+
+  matrix->show();
+  delay(scrollSpeed);
 ```
 
-
+You could play around with this can change the text colour based on the value of x, or modify the text being printed, or change the scroll speed.
 
 ## Snake of increasing length
-We can start a snake with a single pixel that then moves through the matrix. After completing, it could start over with a length of 1 pixel longer. We have the same hardware as the previous example, so we will keep the same variable defines section, except we will drop the colour options. We need to make two arrays, to keep track of the x and y coordinates of the snake, and the length of the snake.
+We can start a snake with a single pixel that then moves through the matrix. After completing, it could start over with a length of 1 pixel longer. We have the same hardware as the previous example, so we will keep the same variable defines section. We can remove the colour defines, and the string and x and y definitions from the last example.  Here, we need to make two arrays to keep track of the x and y coordinates of the snake, and the length of the snake. Insert the following before the setup() function. 
 ```
-int xPixLoc[NUMMATRIX];
-int yPixLoc[NUMMATRIX];
-int snakeLength = 1;
+uint8_t xPixLoc[NUM_LEDS];
+uint8_t yPixLoc[NUM_LEDS];
+uint8_t snakeLength = 1;
+uint8_t scrollSpeed = 50; // milliseconds
 ```
  We don't need all the setup code since we aren't using text, so insert the following in the setup() function:
 ```
-Serial.begin(115200);
-FastLED.addLeds<CHIPSET, MATRIXPIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalLEDStrip);
-matrix->begin();
-matrix->setBrightness(matrix_brightness);
+  Serial.begin(115200);
+  FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  matrix->begin();
+  matrix->setBrightness(matrix_brightness);
 ```
-We are going to draw things pixel by pixel. If you want to change the colour, this is where you do it in RGB format:
+We are going to draw things pixel by pixel. If you want to change the colour, this is where you do it. Remember that drawPixel uses RGB coding for colour determination. 
 
-`matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7));`
+`matrix.drawPixel(0, 0, CRGB( 150, 150, 150));`
 
 So to draw the snake, we need to loop over the snake length.
 ```
-for (int i = 0; i < snakeLength; i++) {
-  matrix.drawPixel( xPixLoc[i], yPixLoc[i], matrix.Color333(7, 7, 7));
-}
-matrix.show();
-delay(scrollSpeed); // You may want to make this shorter
+  FastLED.clear(); 
+  for (int i = 0; i < snakeLength; i++) {
+    matrix->drawPixel( xPixLoc[i], yPixLoc[i], WHITE);
+  }
+  matrix->show();
+  delay(scrollSpeed); // You may want to make this shorter
+
 ```
 
-We need to do a couple things still. First we need to update the x and y locations for the next loop. And we need to increase the length of the snake when the end of the snake reaches the end of the matrix. The LEDs are connected in a serpentine pattern. So odd rows will increment x, and even rows will decrease y. If they are already at the end of the row, then we need to increment y. If it reaches the very end of the matrix, then we need to bring it back to the start. Remember that this coding language uses 0 indexing (we start at 0 and not at 1).
+Lets start by just going across in x, then if we hit the end of x we reset x and go up in y. 
+
+```
+  for (uint8_t i = 0; i < snakeLength; i++) {
+    uint8_t curX = xPixLoc[i];
+    uint8_t curY = yPixLoc[i];
+
+    if (curX < kMatrixWidth-1) {
+        xPixLoc[i] +=1; // decrement by 1, y stays same
+
+      } else { // we are at end of row
+        yPixLoc[i] +=1; // increment by 1
+        xPixLoc[i] = 0;
+      }
+
+    }
+```
+
+Run the above. What happens to the dot at the end? We need to put it back at the start! The logic you use to reset it will depend on where you put the code. We will put it at the end of the loop. At the end of the loop, the dot would be out of bounds if it tries to enter a 17th row (curX == 0 && curY == kMatrixHeight ). We can use an 'if' statement just after updating the coordinates - but still in the for loop for the snake length - to check this and update if needed.
+
+```
+      if(curX == 0 && curY == kMatrixHeight) {
+        yPixLoc[i] = 0;
+        xPixLoc[i] = 0;
+      }
+```
+
+
+Next, lets increase the length of the snake when we finish a loop. We have an 'if' statement that checks if we are at the end for a single pixel. We need to expand this so that we only increase the snake length when we are at the end of the snake! Please the following 'if' statement within the 'if' statement we made in the last step:
+
+```
+    if (i == snakeLength-1){
+      snakeLength++;
+    }
+```
+
+To get the 'snake' effect, we need to move opposite ways along x for even and odd rows. Remember that this coding language uses 0 indexing (we start at 0 and not at 1).
 
 
 ```
