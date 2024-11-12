@@ -12,10 +12,8 @@
 // ***************************************************
 
 #define LED_PIN         5             // LED strip data
-//#define SAMPLES         1024          // Must be a power of 2
-//#define SAMPLING_FREQ   30000         // Hz, must be 40000 or less due to ADC conversion time. Determines maximum frequency that can be analysed by the FFT Fmax=sampleF/2.
-const uint16_t  SAMPLES = 1024; // arduinoFFT 2.0.2
-const float SAMPLING_FREQ = 15000;
+const uint16_t  SAMPLES = 1024; // arduinoFFT 2.0.3
+const float SAMPLING_FREQ = 30000;
 #define AUDIO_IN_PIN    35            // Signal in on this pin
 #define COLOR_ORDER     GRB           // If colours look wrong, play with this
 #define CHIPSET         WS2812B       // LED strip type
@@ -35,13 +33,10 @@ unsigned int sampling_period_us;
 byte peak[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};              // The length of these arrays must be >= NUM_BANDS
 int oldBarHeights[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int bandValues[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-//double vReal[SAMPLES];
-//double vImag[SAMPLES];
-float vReal[SAMPLES]; // arduinoFFT 2.0.2
-float vImag[SAMPLES]; // arduinoFFT 2.0.2
+float vReal[SAMPLES]; // arduinoFFT 2.0.3
+float vImag[SAMPLES]; // arduinoFFT 2.0.3
 unsigned long newTime;
-//arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ); // arduinoFFT 1.6.2
-ArduinoFFT<float> FFT = ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);  // arduinoFFT 2.0.2 https://github.com/kosme/arduinoFFT/wiki WIP! Doesnt work currently
+ArduinoFFT<float> FFT = ArduinoFFT<float>(vReal, vImag, SAMPLES, SAMPLING_FREQ);  // arduinoFFT 2.0.3 https://github.com/kosme/arduinoFFT/wiki
 
 // FastLED stuff
 CRGB leds[NUM_LEDS];
@@ -93,6 +88,7 @@ void setup() {
   FastLED.setBrightness(BRIGHTNESS_SETTINGS);
   FastLED.clear();
   sampling_period_us = round(1000000 * (1.0 / SAMPLING_FREQ));
+  delay(500);
 }
 
 void loop() {
@@ -112,11 +108,6 @@ void loop() {
     while ((micros() - newTime) < sampling_period_us) { /* chill */ }
   }
 
-  // // Compute FFT - arduinofft 1.6.2
-  // FFT.DCRemoval(); // Remove DC offset
-  // FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD); // Window to remove truncation effects in FFT
-  // FFT.Compute(FFT_FORWARD);
-  // FFT.ComplexToMagnitude();
   // Compute FFT - arduinofft 2.0.2
   FFT.dcRemoval(); // Remove DC offset
   FFT.windowing(FFTWindow::Hamming, FFTDirection::Forward); // Window to remove truncation effects in FFT
@@ -132,22 +123,22 @@ void loop() {
    
     
     //16 bands, 12kHz top band
-      if (i>8   && i<=14  ) bandValues[0]  += (int)vReal[i];
-      if (i>14   && i<=18  ) bandValues[1]  += (int)vReal[i];
-      if (i>18   && i<=23  ) bandValues[2]  += (int)vReal[i];
-      if (i>23   && i<=28  ) bandValues[3]  += (int)vReal[i];
-      if (i>28   && i<=36  ) bandValues[4]  += (int)vReal[i];
-      if (i>36   && i<=45  ) bandValues[5]  += (int)vReal[i];
-      if (i>45   && i<=56  ) bandValues[6]  += (int)vReal[i];
-      if (i>56   && i<=71  ) bandValues[7]  += (int)vReal[i];
-      if (i>71   && i<=89  ) bandValues[8]  += (int)vReal[i];
-      if (i>89   && i<=111  ) bandValues[9]  += (int)vReal[i];
-      if (i>111   && i<=139  ) bandValues[10]  += (int)vReal[i];
-      if (i>139   && i<=175  ) bandValues[11]  += (int)vReal[i];
-      if (i>175   && i<=219  ) bandValues[12]  += (int)vReal[i];
-      if (i>219   && i<=275  ) bandValues[13]  += (int)vReal[i];
-      if (i>275   && i<=345  ) bandValues[14]  += (int)vReal[i];
-      if (i>345             ) bandValues[15]  += (int)vReal[i];
+      if (i>15   && i<=19  ) bandValues[0]  += (int)vReal[i];
+      if (i>19   && i<=23  ) bandValues[1]  += (int)vReal[i];
+      if (i>23   && i<=28  ) bandValues[2]  += (int)vReal[i];
+      if (i>28   && i<=35  ) bandValues[3]  += (int)vReal[i];
+      if (i>35   && i<=42  ) bandValues[4]  += (int)vReal[i];
+      if (i>42   && i<=51  ) bandValues[5]  += (int)vReal[i];
+      if (i>51   && i<=63  ) bandValues[6]  += (int)vReal[i];
+      if (i>63   && i<=77  ) bandValues[7]  += (int)vReal[i];
+      if (i>77   && i<=94  ) bandValues[8]  += (int)vReal[i];
+      if (i>94   && i<=114  ) bandValues[9]  += (int)vReal[i];
+      if (i>114   && i<=140  ) bandValues[10]  += (int)vReal[i];
+      if (i>140   && i<=171  ) bandValues[11]  += (int)vReal[i];
+      if (i>171   && i<=208  ) bandValues[12]  += (int)vReal[i];
+      if (i>208   && i<=254  ) bandValues[13]  += (int)vReal[i];
+      if (i>254   && i<=310  ) bandValues[14]  += (int)vReal[i];
+      if (i>310   && i<=379 ) bandValues[15]  += (int)vReal[i];
 
     }
   }
